@@ -1,0 +1,46 @@
+---
+title: "Naissance"
+author: "Eagle IO"
+date: "1/14/2021"
+output: pdf_document
+---
+
+```{r,echo=FALSE,include=FALSE}
+library(readxl)
+library(tidyverse)
+library(stringr)
+data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+```
+
+```{r, include=FALSE}
+Date<-as.data.frame(substr(data$`Send Time`,1,10))
+Time<-as.data.frame(substr(data$`Send Time`,12,19))
+
+Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
+
+Date<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
+
+Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+
+Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
+
+Data2<-data%>%select
+
+```
+
+
+
+```{r,echo=FALSE}
+data%>%group_by(`e-Mail Type`)%>%
+  summarise(mean=mean(`Open Rate`),n())
+
+data%>%group_by(`e-Mail Type`)%>%
+  summarise(mean=mean(`Clickthrough Rate`),n())
+
+data%>%group_by(`e-Mail Type`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+data%>%group_by(`e-Mail Type`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+```
+
