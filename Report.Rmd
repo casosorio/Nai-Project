@@ -9,6 +9,11 @@ output: pdf_document
 library(readxl)
 library(tidyverse)
 library(stringr)
+library(psych)
+library(caret)
+library(ggplot2)
+
+# Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
 ```
 
