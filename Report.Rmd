@@ -12,6 +12,10 @@ library(stringr)
 library(psych)
 library(caret)
 library(ggplot2)
+library(descr)
+library(janitor)
+library(vtree)
+library(CGPfunctions)
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
@@ -29,21 +33,23 @@ Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
 
 Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
 
+Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
+
+Data2<-cbind(Date,Time,Data2)
+
+Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
 ```
 
 
 
 ```{r,echo=FALSE}
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Open Rate`),n())
+tabyl(Data2,date,`Open Rate`)%>%
+  adorn_percentages("row")%>%
+  adorn_pct_formatting(digits = 1)
 
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Clickthrough Rate`),n())
+CGPfunctions::PlotXTabs(Data2,`Open Rate`,date)
 
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Bounce Rate`),n())
 
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Unsubscribe Rate`),n())
+
 ```
 
