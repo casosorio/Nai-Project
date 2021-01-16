@@ -14,8 +14,8 @@ library(caret)
 library(ggplot2)
 library(descr)
 library(janitor)
-library(vtree)
 library(CGPfunctions)
+library(summarytools)
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
@@ -49,7 +49,7 @@ tabyl(Data2,date,`Open Rate`)%>%
 
 CGPfunctions::PlotXTabs(Data2,`Open Rate`,date)
 
-
+dfSummary(Data2)
 
 ```
 
