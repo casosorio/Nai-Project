@@ -29,6 +29,12 @@ Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
 
 Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
 
+Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
+
+Data2<-cbind(Date,Time,Data2)
+
+Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
+
 ```
 
 
