@@ -1,6 +1,5 @@
 ########## Simulating a dataset to start writting scripts
 
-data<-read.csv("R/Naissance e-Mail Metrics Pilot - Data Template.csv")
 
 Send.Time<-c("9/14/20 7:00 AM", "9/19/21 12:00 AM
 ", "9/26/21 12:00 AM
@@ -38,7 +37,7 @@ data <- data.frame(Send.Time=sample(Send.Time, 1000, replace=TRUE),
                    Product.Name=sample(Product.Name, 1000, replace=TRUE),
                    Subscription=sample(Subscription, 1000, replace=TRUE),
                    Audience.Size=sample(5000:100000, 1000, replace=TRUE),
-                   Blast.Message=sample(Blast.Message, 100, replace=TRUE),
+                   Blast.Message=sample(Blast.Message, 1000, replace=TRUE),
                    Distribution.Partner.Specific=sample(Distribution.Partner.Specific, 1000, replace=TRUE),
                    Preferred.Partner=sample(Preferred.Partner, 1000, replace=TRUE),
                    Producers.Only=sample(Producers.Only, 1000, replace=TRUE),
@@ -51,7 +50,7 @@ data <- data.frame(Send.Time=sample(Send.Time, 1000, replace=TRUE),
                    Open.Rate=sample(1:100, 1000, replace=TRUE),
                    Clickthrought.Rate=sample(1:100, 1000, replace=TRUE),
                    Bounce.Rate=sample(1:100, 1000, replace=TRUE),
-                   Unsubscribe.Rate=sample(1:1000, 100, replace=TRUE)
+                   Unsubscribe.Rate=sample(1:1000, 1000, replace=TRUE)
                    
 
                    
