@@ -14,7 +14,7 @@ library(caret)
 library(ggplot2)
 
 # Remember to change the location to your computer or flashdrive. 
-#data <- read_excel("C:/Users/morga/OneDrive/GRAD SCHOOL/EagleIO/Naissance project/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+data <- read_excel("C:/Users/morga/OneDrive/GRAD SCHOOL/EagleIO/Naissance project/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
 ```
 
 ```{r, include=FALSE}
@@ -47,3 +47,4 @@ data%>%group_by(`e-Mail Type`)%>%
   summarise(mean=mean(`Unsubscribe Rate`),n())
 ```
 
+Testing testing 123
