@@ -49,6 +49,6 @@ tabyl(Data2,date,`Open Rate`)%>%
 
 CGPfunctions::PlotXTabs(Data2,`Open Rate`,date)
 
-dfSummary(Data2)
+Summary<-dfSummary(Data2)
 ```
 
