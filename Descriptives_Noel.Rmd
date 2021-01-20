@@ -1,0 +1,188 @@
+---
+title: "Descriptive Stats_Noel"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Downloading all the packages as Necessary
+
+library(readxl)
+library(tidyverse)
+library(stringr)
+library(psych)
+library(caret)
+library(ggplot2)
+
+##Remember to change the order of the excel sheets to save each 'data' file as separately, in order to get all the data frames and also to put your own file path in. 
+data <- read_excel("C:/Users/noeld/OneDrive/Documents/2nd Year IO/Naissance Project/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+
+
+```
+
+
+```{r, echo=FALSE}
+
+##Blast Message Group Means
+
+library(descr)
+library(dplyr)
+Blast_Open <- as.data.frame(data%>%group_by(`Blast Message?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Blast_Clickthrough <- data%>%group_by(`Blast Message?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Blast_Bounce <- data%>%group_by(`Blast Message?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Blast_Unsubscribe <- data%>%group_by(`Blast Message?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Blast.Group <- as.data.frame(c(Blast_Open[,1:2],Blast_Clickthrough[,2], Blast_Bounce[,2], Blast_Unsubscribe[,2:3]))
+
+rename(Blast.Group, "Open Rate" = "mean")
+```
+```{r, echo=FALSE}
+
+#"Distribution Partner Specific?" Means
+
+Distribution_Open <- as.data.frame(data%>%group_by(`Distribution Partner Specific?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Distribution_Clickthrough <- data%>%group_by(`Distribution Partner Specific?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Distribution_Bounce <- data%>%group_by(`Distribution Partner Specific?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Distribution_Unsubscribe <- data%>%group_by(`Distribution Partner Specific?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Distribution.Group <- as.data.frame(c(Distribution_Open[,1:2],Distribution_Clickthrough[,2], Distribution_Bounce[,2], Distribution_Unsubscribe[,2:3]))
+```
+
+```{r, echo=FALSE}
+
+# Preferred Partner Means
+
+Preferred.Partner_Open <- as.data.frame(data%>%group_by(`Preferred Partner?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Preferred.Partner_Clickthrough <- data%>%group_by(`Preferred Partner?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Preferred.Partner_Bounce <- data%>%group_by(`Preferred Partner?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Preferred.Partner_Unsubscribe <- data%>%group_by(`Preferred Partner?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Preferred.Partner.Group <- as.data.frame(c(Preferred.Partner_Open[,1:2],Preferred.Partner_Clickthrough[,2], Preferred.Partner_Bounce[,2], Preferred.Partner_Unsubscribe[,2:3]))
+```
+
+```{r,echo=FALSE}
+#Producers Only Means
+
+Producers_Open <- as.data.frame(data%>%group_by(`Producers Only`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Producers_Clickthrough <- data%>%group_by(`Producers Only`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Producers_Bounce <- data%>%group_by(`Producers Only`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Producers_Unsubscribe <- data%>%group_by(`Producers Only`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Producers.Group <- as.data.frame(c(Producers_Open[,1:2],Producers_Clickthrough[,2], Producers_Bounce[,2], Producers_Unsubscribe[,2:3]))
+
+```
+
+```{r,echo=FALSE}
+#Prospects Means
+
+Prospects_Open <- as.data.frame(data%>%group_by(`Prospects Only`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Prospects_Clickthrough <- data%>%group_by(`Prospects Only`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Prospects_Bounce <- data%>%group_by(`Prospects Only`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Prospects_Unsubscribe <- data%>%group_by(`Prospects Only`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Prospects.Group <- as.data.frame(c(Prospects_Open[,1:2],Prospects_Clickthrough[,2], Prospects_Bounce[,2], Prospects_Unsubscribe[,2:3]))
+
+```
+
+
+```{r, echo=FALSE}
+#Individual Data frames for each IV with the four email rates (open, Clickthrough, Bounce and Unsubscribe)
+
+Blast.Message_Data <- as.data.frame(c(data[,9],data[,14:17]))
+Distribution_Data <- as.data.frame(c(data[,10],data[,14:17]))
+Preferred.Partner_Data <- as.data.frame(c(data[,11],data[,14:17]))
+Producers_Data <- as.data.frame(c(data[,12],data[,14:17]))
+Prospects_Data <- as.data.frame(c(data[,13],data[,14:17]))
+
+```
+
+
+
+
+
+
+```{r,echo=FALSE}
+#Descriptive showing the frequency graphs of the different IVs and AUM
+
+library(descr)
+freq(data$`Blast Message?`)
+freq(data$`Distribution Partner Specific?`)
+freq(data$`Preferred Partner?`)
+freq(data$`Producers Only`)
+freq(data$`Prospects Only`)
+hist(data2$AUM)
+
+
+summary(data$`Blast Message?`)
+summary(data$`Distribution Partner Specific?`)
+summary(data$`Preferred Partner?`)
+summary(data$`Producers Only`)
+summary(data$`Prospects Only`)
+summary(data2$AUM)
+```
+
+
+```{r,echo=FALSE}
+
+#Outliers of AUM and IV's - although they might report as null because they're TRUE/FALSE. AUM might be the only one that will report when we have more data rows because it is numerical
+
+Out.AUM <- boxplot.stats(data2$AUM)$out
+Out.Blast.Message <- boxplot.stats(data$`Blast Message?`)$out
+Out.Distribution <- boxplot.stats(data$`Distribution Partner Specific?`)$out
+Out.Preferred.Partner <- boxplot.stats(data$`Preferred Partner?`)$out
+Out.Producers.Only <- boxplot.stats(data$`Producers Only`)$out
+Out.Prospects.Only <- boxplot.stats(data$`Prospects Only`)$out
+
+out_AUM <- which(data2$AUM %in% c(Out.AUM))
+out_AUM
+
+out_BM <- which(data$`Blast Message?` %in% c(Out.Blast.Message))
+out_BM
+
+out_Distribution <- which(data$`Distribution Partner Specific?` %in% c(Out.Distribution))
+out_Distribution
+out_Preferred.Partner <- which(data$`Preferred Partner?` %in% c(Out.Preferred.Partner))
+out_Preferred.Partner
+out_Producers <- which(data$`Producers Only` %in% c(Out.Producers.Only))
+out_Producers
+out_Prospects <- which(data$`Prospects Only` %in% c(Out.Prospects.Only))
+out_Prospects
+
+```
+
