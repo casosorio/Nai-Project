@@ -39,23 +39,23 @@ Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
 #Rename Days and Time
 
-Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
-Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
+Date<-Date%>%dplyr::rename(date="substr(data$`Send Time`, 1, 10)")
+Time<-Time%>%dplyr::rename(time="substr(data$`Send Time`, 12, 19)")
 
 Date$date<-gsub("2021","2020",Date$date)
 
 # Creating Days
 Date2<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
-Date2<-Date2%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+Date2<-Date2%>%dplyr::rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
 
 # Creating Months
 Month<-as.data.frame(months(as.Date(Date$date,'%Y-%m-%d')))
-Month<-Month%>%rename(month=`months(as.Date(Date$date, "%Y-%m-%d"))`)
+Month<-Month%>%dplyr::rename(month=`months(as.Date(Date$date, "%Y-%m-%d"))`)
 
 # Creating Week
 Date$date<-as.Date(Date$date)
 Week<-as.data.frame(stringi::stri_datetime_fields(Date$date)$WeekOfMonth)
-Week<-Week%>%rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
+Week<-Week%>%dplyr::rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
   
 # Combining
 Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
@@ -149,7 +149,8 @@ ggplot(Data2) +
 
 ```{r}
 # QQplot
-qq.Audience.Size <- qqPlot(Data2$Audience.Size)
+#Audience Size needs to be fixed
+#qq.Audience.Size <- qqPlot(Data2$Audience.Size)
 qq.Open.Rate<-qqPlot(Data2$`Open Rate`)
 qq.Clickthrough.Rate<-qqPlot(Data2$`Clickthrough Rate`)
 qq.Bounce.Rate<-qqPlot(Data2$`Bounce Rate`)
@@ -160,13 +161,14 @@ qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
 
 
 ```{r}
-#Desciptives: mean of DVs at each level of each categorical IV
+#Descriptive: mean of DVs at each level of each categorical IV
 #From.Firm
+
 Data2%>%group_by(`From Firm?`)%>%
   summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+            unsubscribe_mean = mean(`Unsubscribe Rate`)
             n())
 
 #email Type
