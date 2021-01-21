@@ -8,6 +8,9 @@ output: pdf_document
 ```{r,echo=FALSE,include=FALSE}
 library(readxl)
 library(tidyverse)
+library(tidymodels)
+library(class)
+library(kknn)
 library(stringr)
 library(psych)
 library(caret)
@@ -18,6 +21,7 @@ library(CGPfunctions)
 library(summarytools)
 library(dplyr)
 library(ggpubr)
+
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
@@ -141,15 +145,15 @@ boxplot.stats(Data2$`Unsubscribe Rate`)$out
 
 ```{r}
 #Quantile
-quantile(Data2$`Open Rate`)
-quantile(Data2$`Clickthrough Rate`)
-quantile(Data2$`Bounce Rate`)
-quantile(Data2$`Unsubscribe Rate`)
+quantile(Data2$`Open Rate`,na.rm = TRUE)
+quantile(Data2$`Clickthrough Rate`, na.rm = TRUE)
+quantile(Data2$`Bounce Rate`, na.rm=TRUE)
+quantile(Data2$`Unsubscribe Rate`, na.rm = TRUE)
 
 ```
 
 
-
+## Contigency Tables
 
 ```{r,echo=FALSE}
 tabyl(Data2,date,`Open Rate`)%>%
@@ -158,6 +162,28 @@ tabyl(Data2,date,`Open Rate`)%>%
 
 CGPfunctions::PlotXTabs(Data2,`Open Rate`,date)
 
-Summary<-dfSummary(Data2)
+
 ```
+
+
+
+## Regression 
+
+```{r}
+
+```
+
+## Cluster Analysis
+```{r}
+# Creating a function to normalize the data
+norm_func<-function(x){(x-min(x))/max(x)-min(x)}
+Norm_Data<-as.data.frame(lapply(Data2[,9], norm_func))
+
+df.split<-initial_split(Data2,prop=.7,strata=`Open Rate`)
+
+df.train<-training(df.split)
+df.test<-testing(df.split)
+
+```
+
 
