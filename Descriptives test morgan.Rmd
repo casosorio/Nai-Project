@@ -1,0 +1,189 @@
+---
+title: "Descriptives test"
+author: "Morgan Russell"
+date: "1/18/2021"
+output: html_document
+---
+
+NOTE TO SELF: This is for testing descriptives. You need to make:
+  boxplots
+  qq plots
+  detect outliers
+  remove outliers
+  contingency tables
+
+Numeric variables:
+  Audience.Size
+  AUM
+  Morningstar.Rating
+  US.AUM
+  US.Intermediary.AUM
+  Open.Rate
+  Clickthrough.Rate
+  Bounce.Rate
+  Unsubscribe.Rate
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(car)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+#Create contingency tables
+
+#count
+count_contingency <- table(data$From.Firm, data$Subscription)
+
+#relative frequency
+relative_frequency_contingency <- prop.table(count_contingency, margin = 1) #margin = 1 means rows sum to 1, =2 columns sum to 1
+
+count_contingency
+
+#relative_frequency_contingency
+
+table(data$From.Firm)
+```
+
+```{r}
+#Detect outliers in a variable; does not delete, only identifies
+#outliers defined as > 1.5 * IQR
+#should we use Mahalanobis (multivariate) instead?
+
+#note to self: this code sucks. Figure out how to do this without double-assigning.
+#also, is there a way to do this for every variable at once?
+
+out.Audience.Size <- boxplot.stats(data$Audience.Size)
+out.Audience.Size <-out.Audience.Size$out
+
+out.AUM <- boxplot.stats(data$out.Unsubscribe.Rate)
+out.AUM <- out.AUM$out
+
+out.Morningstar.Rating <- boxplot.stats(data$Morningstar.Rating)
+out.Morningstar.Rating <- out.Morningstar.Rating$out
+
+out.US.AUM <- boxplot.stats(data$US.AUM)
+out.US.AUM <- out.US.AUM$out
+
+out.US.Intermediary.AUM <- boxplot.stats(data$US.Intermediary.AUM)
+out.US.Intermediary.AUM <- out.US.Intermediary.AUM$out
+
+out.Open.Rate <- boxplot.stats(data$Open.Rate)
+out.Open.Rate <- out.Open.Rate$out
+
+out.Clickthrough.Rate <- boxplot.stats(data$Clickthrough.Rate)
+out.Clickthrough.Rate <- out.Clickthrough.Rate$out
+
+out.Bounce.Rate <- boxplot.stats(data$Bounce.Rate)
+out.Bounce.Rate <- out.Bounce.Rate$out
+
+out.Unsubscribe.Rate <- boxplot.stats(data$Unsubscribe.Rate)
+out.Unsubscribe.Rate <- out.Unsubscribe.Rate$out
+```
+
+```{r}
+#normal QQ plots
+library(car)
+qq.Audience.Size <- qqPlot(data$Audience.Size)
+qq.AUM <- qqPlot(data$AUM)
+qq.US.AUM <- qqPlot(data$US.AUM)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+#Example bar chart for a DV and categorical IV pair
+ggplot(data) +
+  geom_col(aes(x = Subscription, y = Open.Rate)) +
+  scale_y_continuous(labels = comma)
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+#Create boxplots for all continuous variables
+BP.Audience.Size <-  ggplot(data) +
+  geom_boxplot(aes(x = Audience.Size)) 
+
+BP.AUM <- ggplot(data) +
+  geom_boxplot(aes(x = AUM))
+
+BP.US.AUM <- ggplot(data) +
+  geom_boxplot(aes(x = US.AUM))
+
+BP.US.Intermediary.AUM <- ggplot(data) +
+  geom_boxplot(aes(x = US.Intermediary.AUM))
+
+BP.Open.Rate <- ggplot(data) +
+  geom_boxplot(aes(x = Open.Rate))
+
+BP.Clickthrough.Rate <- ggplot(data) +
+  geom_boxplot(aes(x = Clickthrough.Rate))
+
+BP.Bounce.Rate <- ggplot(data) +
+  geom_boxplot(aes(x = Bounce.Rate))
+
+BP.Unsubscribe.Rate <- ggplot(data) +
+  geom_boxplot(aes(x = Unsubscribe.Rate))
+```
+
+```{r}
+#Desciptives: mean of DVs at each level of each categorical IV
+#From.Firm
+data%>%group_by(`From.Firm`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#email.Type
+data%>%group_by(`email.Type`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#Product.Name
+data%>%group_by(`Product.Name`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#Subscription
+data%>%group_by(`Subscription`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+```
+
+```{r}
+#graphs audience size's correlations with each continuous DV (with regression line)
+ggplot(data, aes(x = Audience.Size, y = Open.Rate)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm', se = FALSE)
+
+ggplot(data, aes(x = Audience.Size, y = Clickthrought.Rate)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm', se = FALSE)
+
+ggplot(data, aes(x = Audience.Size, y = Bounce.Rate)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm', se = FALSE)
+
+ggplot(data, aes(x = Audience.Size, y = Unsubscribe.Rate)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm', se = FALSE)
+```
+
