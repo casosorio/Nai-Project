@@ -30,6 +30,9 @@ library(stringi)
 library(hrbrthemes)
 library(tidyr)
 library(viridis)
+library(e1071)
+library(moments)
+library(rstatix)
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
@@ -159,6 +162,58 @@ qq.Clickthrough.Rate<-qqPlot(Data2$`Clickthrough Rate`)
 qq.Bounce.Rate<-qqPlot(Data2$`Bounce Rate`)
 qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
 
+# Density Plot
+ggdensity(Data2$`Audience Size`,
+          main= "Density plot of Open Rate",
+          xlab = "Audience size")
+
+ggdensity(Data2$`Open Rate`,
+          main= "Density plot of Open Rate",
+          xlab= "Open Rate")
+
+ggdensity(Data2$`Clickthrough Rate`,
+          main= "Density plot of Clickthrough Rate",
+          xlab= "Clickthrough Rate")
+
+ggdensity(Data2$`Bounce Rate`,
+          main= "Density plot of Bounce Rate",
+          xlab= "Bounce Rate")
+
+ggdensity(Data2$`Unsubscribe Rate`,
+          main= "Density plot of Unsubscribe Rate",
+          xlab= "Unsubscribe Rate")
+
+##Shapiro-Test Wilks
+shapiro.test(Data2$`Audience Size`)
+shapiro.test(Data2$`Open Rate`)
+shapiro.test(Data2$`Clickthrough Rate`)
+shapiro.test(Data2$`Bounce Rate`)
+shapiro.test(Data2$`Unsubscribe Rate`)
+
+#Skewness
+skewness(Data2$`Audience Size`,na.rm = TRUE)
+skewness(Data2$`Open Rate`,na.rm = TRUE)
+skewness(Data2$`Clickthrough Rate`,na.rm = TRUE)
+skewness(Data2$`Bounce Rate`,na.rm = TRUE)
+skewness(Data2$`Unsubscribe Rate`,na.rm = TRUE)
+
+#kurtosis
+kurtosis(Data2$`Audience Size`,na.rm = TRUE)
+kurtosis(Data2$`Open Rate`,na.rm = TRUE)
+kurtosis(Data2$`Clickthrough Rate`,na.rm = TRUE)
+kurtosis(Data2$`Bounce Rate`,na.rm = TRUE)
+kurtosis(Data2$`Unsubscribe Rate`,na.rm = TRUE)
+
+```
+
+
+```{r}
+#Quantile
+quantile(Data2$`Open Rate`,na.rm = TRUE)
+quantile(Data2$`Clickthrough Rate`, na.rm = TRUE)
+quantile(Data2$`Bounce Rate`, na.rm=TRUE)
+quantile(Data2$`Unsubscribe Rate`, na.rm = TRUE)
+
 
 ```
 
@@ -243,7 +298,7 @@ Data2%>%group_by(`Prospects Only`)%>%
 
 
 ```{r}
-# Plot
+# Data visualization
 ggplot(Data2, aes(time, date, fill = `Open Rate`)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
@@ -288,4 +343,88 @@ ggplot(Data2, aes(time, date, fill = `Unsubscribe Rate`)) +
 
 ```
 
+```{r}
+# Regression and Machine Learning
+validation_index <- createDataPartition(data$Open.Rate, p=0.80, list=FALSE)
+
+validation <- data[-validation_index,]
+
+dataset <- data[validation_index,]
+
+control <- trainControl(method = "cv", 
+                              number = 5,verboseIter = TRUE)
+metric="RMSE"
+
+################ Open Rate
+set.seed(7)
+model.knn <- train(Open.Rate~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
+
+set.seed(9)
+model.lm <- train(Open.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
+                  trControl = control)
+summary(model.lm)
+
+predictions <- predict(model.lm, validation)
+prediction<-as.data.frame(cbind(predictions,validation$Open.Rate))
+
+################ Clickthrought
+set.seed(7)
+model.knn <- train(Clickthrought.Rate~ Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
+
+set.seed(9)
+model.lm <- train(Clickthrought.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
+                  trControl = train.control)
+summary(model.lm)
+
+predictions <- predict(model.lm, validation)
+confusionMatrix(predictions, validation$Clickthrought.Rate)
+
+################ Bounce Rate
+set.seed(7)
+model.knn <- train(Bounce.Rate~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
+
+set.seed(9)
+model.lm <- train(Bounce.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
+                  trControl = train.control)
+summary(model.lm)
+
+predictions <- predict(model.lm, validation)
+confusionMatrix(predictions, validation$Bounce.Rate)
+
+################ Unsubscribe
+set.seed(7)
+model.knn <- train(Unsubscribe.Rate~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
+
+set.seed(9)
+model.lm <- train(Unsubscribe.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
+                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
+                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
+                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
+                  trControl = train.control)
+summary(model.lm)
+
+predictions <- predict(model.lm, validation)
+confusionMatrix(predictions, validation$Unsubscribe.Rate)
+```
 
