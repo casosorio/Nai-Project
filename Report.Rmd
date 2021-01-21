@@ -219,7 +219,7 @@ quantile(Data2$`Unsubscribe Rate`, na.rm = TRUE)
 
 
 ```{r}
-#Descriptive: mean of DVs at each level of each categorical IV
+#Contigency Tables: mean of DVs at each level of each categorical IV
 #From.Firm
 Data2%>%group_by(`From Firm?`)%>%
   dplyr::summarise(open_mean = mean(`Open Rate`),
