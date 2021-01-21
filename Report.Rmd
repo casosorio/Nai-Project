@@ -78,3 +78,40 @@ qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
 
 ```
 
+
+```{r}
+#Desciptives: mean of DVs at each level of each categorical IV
+#From.Firm
+data%>%group_by(`From.Firm`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#email.Type
+data%>%group_by(`email.Type`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#Product.Name
+data%>%group_by(`Product.Name`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+
+#Subscription
+data%>%group_by(`Subscription`)%>%
+  summarise(open_mean = mean(`Open.Rate`),
+            clickthrough_mean = mean(`Clickthrought.Rate`),
+            bounce_mean = mean(`Bounce.Rate`),
+            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+            n())
+```
+```
+
