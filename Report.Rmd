@@ -242,8 +242,6 @@ Data2%>%group_by(`Prospects Only`)%>%
 
 
 
-
-
 ```{r}
 # Plot
 ggplot(Data2, aes(time, date, fill = `Open Rate`)) +
