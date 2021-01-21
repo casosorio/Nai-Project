@@ -16,12 +16,15 @@ library(descr)
 library(janitor)
 library(CGPfunctions)
 library(summarytools)
+library(dplyr)
+library(ggpubr)
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
 ```
 
 ```{r, include=FALSE}
+# Data Cleaning
 Date<-as.data.frame(substr(data$`Send Time`,1,10))
 Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
@@ -39,6 +42,112 @@ Data2<-cbind(Date,Time,Data2)
 
 Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
 ```
+
+# Descriptive Statisitics
+```{r}
+# Basic Descriptives
+summary(Data2)
+
+# Histogram
+ggplot(Data2) +
+  aes(x = `Open Rate`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = `Clickthrough Rate`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = `Bounce Rate`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = `Unsubscribe Rate`) +
+  geom_histogram(bins = 30L, fill = "#0c4c8a") +
+  theme_minimal()
+
+
+```
+
+
+
+```{r}
+#Assumption checks
+## Denisity Plot
+ggdensity(Data2$`Open Rate`,
+          main= "Density plot of Open Rate",
+          xlab= "Open Rate")
+
+ggdensity(Data2$`Clickthrough Rate`,
+          main= "Density plot of Clickthrough Rate",
+          xlab= "Clickthrough Rate")
+
+ggdensity(Data2$`Bounce Rate`,
+          main= "Density plot of Bounce Rate",
+          xlab= "Bounce Rate")
+
+ggdensity(Data2$`Unsubscribe Rate`,
+          main= "Density plot of Unsubscribe Rate",
+          xlab= "Unsubscribe Rate")
+
+##Q-Q plot
+ggqqplot(Data2$`Open Rate`)
+ggqqplot(Data2$`Clickthrough Rate`)
+ggqqplot(Data2$`Bounce Rate`)
+ggqqplot(Data2$`Unsubscribe Rate`)
+
+##Shapiro-Test Wilks
+shapiro.test(Data2$`Open Rate`)
+shapiro.test(Data2$`Clickthrough Rate`)
+shapiro.test(Data2$`Bounce Rate`)
+shapiro.test(Data2$`Unsubscribe Rate`)
+
+
+#Outliers
+##  Boxplot
+
+ggplot(Data2) +
+  aes(x = "", y = `Open Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = "", y = `Clickthrough Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = "", y = `Bounce Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = "", y = `Unsubscribe Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+# Finding specific outlies
+boxplot.stats(Data2$`Open Rate`)$out
+boxplot.stats(Data2$`Clickthrough Rate`)$out
+boxplot.stats(Data2$`Bounce Rate`)$out
+boxplot.stats(Data2$`Unsubscribe Rate`)$out
+
+
+```
+
+
+```{r}
+#Quantile
+quantile(Data2$`Open Rate`)
+quantile(Data2$`Clickthrough Rate`)
+quantile(Data2$`Bounce Rate`)
+quantile(Data2$`Unsubscribe Rate`)
+
+```
+
 
 
 
