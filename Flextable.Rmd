@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Naissance Report"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -11,31 +11,117 @@ library(flexdashboard)
 library(dygraphs)
 library(shiny)
 library(DT)
+library(tidyverse)
+library(stringr)
+library(psych)
+library(caret)
+library(ggplot2)
+library(readxl)
+library(summarytools)
+library(dplyr)
+library(ggpubr)
+
+data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+Date<-as.data.frame(substr(data$`Send Time`,1,10))
+Time<-as.data.frame(substr(data$`Send Time`,12,19))
+
+Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
+
+Date<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
+
+Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+
+Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
+
+Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
+
+Data2<-cbind(Date,Time,Data2)
+
+Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
 ```
+
+
+Page 1
+===================================== 
 
 Column {data-width=650}
 -----------------------------------------------------------------------
 
-### Chart A
+### Summary of the Data
 
 ```{r}
+
 knitr::kable(Data2)
+
 ```
 
+
+
+Page 2
+=====================================
 Column {data-width=350}
 -----------------------------------------------------------------------
-
-### Chart B
+### Open Rate
 
 ```{r}
-DT::datatable(Data2, options = list(
-  bPaginate = FALSE
+Open<-mean(Data2$`Open Rate`,na.rm=TRUE)
+gauge(Open,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
 ))
 ```
 
-### Chart C
+### Clickthrough Rate
+```{r}
+Clickthrough<-mean(Data2$`Clickthrough Rate`,na.rm=TRUE)
+gauge(Clickthrough,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
+### Bounce Rate
+```{r}
+Bounce<-mean(Data2$`Bounce Rate`,na.rm=TRUE)
+gauge(Bounce,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
+### Unsubscribe Rate
+```{r}
+Unsubscribe<-mean(Data2$`Unsubscribe Rate`,na.rm=TRUE)
+gauge(Unsubscribe,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
+Page 3
+=====================================
+
+### Density
 
 ```{r}
+ggdensity(Data2$`Open Rate`,
+          main= "Density plot of Open Rate",
+          xlab= "Open Rate")
 
+ggdensity(Data2$`Clickthrough Rate`,
+          main= "Density plot of Clickthrough Rate",
+          xlab= "Clickthrough Rate")
+
+ggdensity(Data2$`Bounce Rate`,
+          main= "Density plot of Bounce Rate",
+          xlab= "Bounce Rate")
+
+ggdensity(Data2$`Unsubscribe Rate`,
+          main= "Density plot of Unsubscribe Rate",
+          xlab= "Unsubscribe Rate")
+```
+
+### Q-Q Plot
+```{r}
+ggqqplot(Data2$`Open Rate`)
+ggqqplot(Data2$`Clickthrough Rate`)
+ggqqplot(Data2$`Bounce Rate`)
+ggqqplot(Data2$`Unsubscribe Rate`)
 ```
 
