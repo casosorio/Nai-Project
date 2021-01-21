@@ -67,3 +67,10 @@ out_Prospects <- which(data$`Prospects Only` %in% c(Out.Prospects.Only))
 out_Prospects
 ```
 
+```{r}
+library(car)
+qq.Audience.Size <- qqPlot(data$Audience.Size)
+qq.AUM <- qqPlot(data$AUM)
+qq.US.AUM <- qqPlot(data$US.AUM)
+```
+
