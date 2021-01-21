@@ -4,7 +4,7 @@ author: "Morgan Russell"
 date: "1/18/2021"
 output: html_document
 ---
-
+1
 NOTE TO SELF: This is for testing descriptives. You need to make:
   boxplots
   qq plots
