@@ -89,7 +89,25 @@ Out.Bounce.Rate<-boxplot.stats(Data2$`Bounce Rate`)$out
 Out.Unsubscibe.Rate<-boxplot.stats(Data2$`Unsubscribe Rate`)$out
 
 #Boxplot
+ggplot(Data2) +
+  aes(x = "", y = `Open Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
 
+ggplot(Data2) +
+  aes(x = "", y = `Clickthrough Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = "", y = `Bounce Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Data2) +
+  aes(x = "", y = `Unsubscribe Rate`) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
 ```
 
 ```{r}
