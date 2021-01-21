@@ -27,6 +27,9 @@ library(CGPfunctions)
 library(summarytools)
 library(ggpubr)
 library(stringi)
+library(hrbrthemes)
+library(tidyr)
+library(viridis)
 
 # Remember to change the location to your computer or flashdrive. 
 data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
@@ -163,17 +166,16 @@ qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
 ```{r}
 #Descriptive: mean of DVs at each level of each categorical IV
 #From.Firm
-
 Data2%>%group_by(`From Firm?`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`)
+            unsubscribe_mean = mean(`Unsubscribe Rate`),
             n())
 
 #email Type
 Data2%>%group_by(`e-Mail Type`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -181,7 +183,7 @@ Data2%>%group_by(`e-Mail Type`)%>%
 
 #Product Name
 Data2%>%group_by(`Product Name(s) (if applicable)`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -189,7 +191,7 @@ Data2%>%group_by(`Product Name(s) (if applicable)`)%>%
 
 #Subscription
 Data2%>%group_by(`Subscription?`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -197,7 +199,7 @@ Data2%>%group_by(`Subscription?`)%>%
 
 # Blast Message
 Data2%>%group_by(`Blast Message?`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -205,7 +207,7 @@ Data2%>%group_by(`Blast Message?`)%>%
 
 # Distribution Partner Specific
 Data2%>%group_by(`Distribution Partner Specific?`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -213,7 +215,7 @@ Data2%>%group_by(`Distribution Partner Specific?`)%>%
 
 # Preferred Partner
 Data2%>%group_by(`Preferred Partner?`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -221,7 +223,7 @@ Data2%>%group_by(`Preferred Partner?`)%>%
 
 # Producers Only 
 Data2%>%group_by(`Producers Only`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -229,7 +231,7 @@ Data2%>%group_by(`Producers Only`)%>%
 
 # Prospects 
 Data2%>%group_by(`Prospects Only`)%>%
-  summarise(open_mean = mean(`Open Rate`),
+  dplyr::summarise(open_mean = mean(`Open Rate`),
             clickthrough_mean = mean(`Clickthrough Rate`),
             bounce_mean = mean(`Bounce Rate`),
             unsubscribe_mean = mean(`Unsubscribe Rate`),
@@ -243,10 +245,8 @@ Data2%>%group_by(`Prospects Only`)%>%
 
 
 ```{r}
-
-
 # Plot
-ggplot(Data2, aes(Time, Weekday, fill = `Open Rate`)) +
+ggplot(Data2, aes(time, date, fill = `Open Rate`)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -256,7 +256,7 @@ ggplot(Data2, aes(Time, Weekday, fill = `Open Rate`)) +
        subtitle="Email Open Rate",
        fill="Close")
 #Plot 2
-ggplot(Data2, aes(Time, Weekday, fill = `Clickthrough Rate`)) +
+ggplot(Data2, aes(time, date, fill = `Clickthrough Rate`)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -267,7 +267,7 @@ ggplot(Data2, aes(Time, Weekday, fill = `Clickthrough Rate`)) +
        fill="Close")
 
 #Plot 3
-ggplot(Data2, aes(Time, Weekday, fill = `Bounce Rate`)) +
+ggplot(Data2, aes(time, date, fill = `Bounce Rate`)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -278,7 +278,7 @@ ggplot(Data2, aes(Time, Weekday, fill = `Bounce Rate`)) +
        fill="Close")
 
 #Plot 4
-ggplot(Data2, aes(Time, Weekday, fill = `Unsubscribe Rate`)) +
+ggplot(Data2, aes(time, date, fill = `Unsubscribe Rate`)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -288,36 +288,6 @@ ggplot(Data2, aes(Time, Weekday, fill = `Unsubscribe Rate`)) +
        subtitle="Email Unsubscribe Rate",
        fill="Close")
 
-#Plot 5
-open <- c(df$Open.Rate)
-click <- c(df$Clickthrough.Rate)
-bounce <- c(df$Bounce.Rate)
-unsub <- c(df$Unsubscribe.Rate)
-aum <- c(df$Audience.Size)
-data<- data.frame(open,click,bounce,unsub,aum)
-
-library(ggplot2)
-library(hrbrthemes)
-library(dplyr)
-library(tidyr)
-library(viridis)
-data<-read.csv("C:/Users/cmnot/Documents/Naissance/Plt2Data.csv")
-#Interaction<-data$?..Interaction
-#Rate<-data$Rate
-#AUM<-data$AUM
-#data<- data.frame(Interaction,Rate,AUM)
-p <- ggplot(data=data, aes(x=Rate, group=Interaction, fill=Interaction)) + geom_density(adjust=1.5, alpha=.4) + theme_ipsum()
-p
-#Could use standardized x-axis
-
-#Plot 6
-library(ggplot2)
-ggplot(data=data,aes(x=AUM,y=Rate,fill=factor(Interaction)))+
-  geom_bar(stat="identity",position="dodge")+
-  scale_fill_discrete(name="Interaction",
-                      breaks=c(1, 2, 3, 4),
-                      labels=c("Open", "Click", "Bounce", "Unsub"))+
-  xlab("AUM")+ylab("Rate")
 ```
 
 
