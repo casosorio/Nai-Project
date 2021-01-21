@@ -35,10 +35,8 @@ data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-
 Date<-as.data.frame(substr(data$`Send Time`,1,10))
 Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
-Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
-
 #Rename Days and Time
-Date<-Date%>%rename(date="`substr(data$`Send Time`, 1, 10)`")
+
 
 Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
 Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
@@ -69,34 +67,33 @@ Data2<-Data2%>%select(ID,date:month,`Reference / Name`:`Unsubscribe Rate`)
 
 
 ```{r,echo=FALSE}
-freq(data$`Blast Message?`)
-freq(data$`Distribution Partner Specific?`)
-freq(data$`Preferred Partner?`)
-freq(data$`Producers Only`)
-freq(data$`Prospects Only`)
+#Frequency
+freq(Data2$`Reference / Name`)
+freq(Data2$`From Firm?`)
+freq(Data2$`e-Mail Type`)
+freq(Data2$`Product Name(s) (if applicable)`)
+freq(Data2$`Subscription?`)
+freq(Data2$`Blast Message?`)
+freq(Data2$`Distribution Partner Specific?`)
+freq(Data2$`Preferred Partner?`)
+freq(Data2$`Producers Only`)
+freq(Data2$`Prospects Only`)
 ```
 
 ```{r}
-Out.Blast.Message <- boxplot.stats(data$`Blast Message?`)$out
-Out.Distribution <- boxplot.stats(data$`Distribution Partner Specific?`)$out
-Out.Preferred.Partner <- boxplot.stats(data$`Preferred Partner?`)$out
-Out.Producers.Only <- boxplot.stats(data$`Producers Only`)$out
-Out.Prospects.Only <- boxplot.stats(data$`Prospects Only`)$out
+#Outliers
+Out.Audience.Size<-boxplot.stats(Data2$`Audience Size`)$out
+Out.Open.Rate<-boxplot.stats(Data2$`Open Rate`)$out
+Out.Clickthrough.Rate<-boxplot.stats(Data2$`Clickthrough Rate`)$out
+Out.Bounce.Rate<-boxplot.stats(Data2$`Bounce Rate`)$out
+Out.Unsubscibe.Rate<-boxplot.stats(Data2$`Unsubscribe Rate`)$out
 
-out_BM <- which(data$`Blast Message?` %in% c(Out.Blast.Message))
-out_BM
+#Boxplot
 
-out_Distribution <- which(data$`Distribution Partner Specific?` %in% c(Out.Distribution))
-out_Distribution
-out_Preferred.Partner <- which(data$`Preferred Partner?` %in% c(Out.Preferred.Partner))
-out_Preferred.Partner
-out_Producers <- which(data$`Producers Only` %in% c(Out.Producers.Only))
-out_Producers
-out_Prospects <- which(data$`Prospects Only` %in% c(Out.Prospects.Only))
-out_Prospects
 ```
 
 ```{r}
+# QQplot
 qq.Audience.Size <- qqPlot(Data2$Audience.Size)
 qq.Open.Rate<-qqPlot(Data2$`Open Rate`)
 qq.Clickthrough.Rate<-qqPlot(Data2$`Clickthrough Rate`)
