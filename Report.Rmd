@@ -69,8 +69,12 @@ out_Prospects
 
 ```{r}
 library(car)
-qq.Audience.Size <- qqPlot(data$Audience.Size)
-qq.AUM <- qqPlot(data$AUM)
-qq.US.AUM <- qqPlot(data$US.AUM)
+qq.Audience.Size <- qqPlot(Data2$Audience.Size)
+qq.Open.Rate<-qqPlot(Data2$`Open Rate`)
+qq.Clickthrough.Rate<-qqPlot(Data2$`Clickthrough Rate`)
+qq.Bounce.Rate<-qqPlot(Data2$`Bounce Rate`)
+qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
+
+
 ```
 
