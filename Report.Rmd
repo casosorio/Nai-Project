@@ -21,19 +21,30 @@ data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-
 Date<-as.data.frame(substr(data$`Send Time`,1,10))
 Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
+#Rename Days and Time
 Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
-
-Date<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
-
-Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
-
 Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
 
+Date$date<-gsub("2021","2020",Date$date)
+
+# Creating Days
+Date2<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
+Date2<-Date2%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+
+# Creating Months
+Month<-as.data.frame(months(as.Date(Date$date,'%Y-%m-%d')))
+Month<-Month%>%rename(month=`months(as.Date(Date$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Week<-as.data.frame(as.POSIXlt(Date$date)$wday)
+Week<-Week%>%rename(week=`as.POSIXlt(Date$date)$wday`)
+
+# Combining
 Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
 
-Data2<-cbind(Date,Time,Data2)
+Data2<-cbind(Date2,Time,Week, Month,Data2)
 
-Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
+Data2<-Data2%>%select(ID,date:month,`Reference / Name`:`Unsubscribe Rate`)
 
 ```
 
@@ -112,6 +123,112 @@ data%>%group_by(`Subscription`)%>%
             bounce_mean = mean(`Bounce.Rate`),
             unsubscribe_mean = mean(`Unsubscribe.Rate`),
             n())
+
+# Blast Message
+
 ```
+
+
+
+
+```{r, echo=FALSE}
+
+##Blast Message Group Means
+
+library(descr)
+library(dplyr)
+Blast_Open <- as.data.frame(data%>%group_by(`Blast Message?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Blast_Clickthrough <- data%>%group_by(`Blast Message?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Blast_Bounce <- data%>%group_by(`Blast Message?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Blast_Unsubscribe <- data%>%group_by(`Blast Message?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Blast.Group <- as.data.frame(c(Blast_Open[,1:2],Blast_Clickthrough[,2], Blast_Bounce[,2], Blast_Unsubscribe[,2:3]))
+
+rename(Blast.Group, "Open Rate" = "mean")
 ```
+```{r, echo=FALSE}
+
+#"Distribution Partner Specific?" Means
+
+Distribution_Open <- as.data.frame(data%>%group_by(`Distribution Partner Specific?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Distribution_Clickthrough <- data%>%group_by(`Distribution Partner Specific?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Distribution_Bounce <- data%>%group_by(`Distribution Partner Specific?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Distribution_Unsubscribe <- data%>%group_by(`Distribution Partner Specific?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Distribution.Group <- as.data.frame(c(Distribution_Open[,1:2],Distribution_Clickthrough[,2], Distribution_Bounce[,2], Distribution_Unsubscribe[,2:3]))
+```
+
+```{r, echo=FALSE}
+
+# Preferred Partner Means
+
+Preferred.Partner_Open <- as.data.frame(data%>%group_by(`Preferred Partner?`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Preferred.Partner_Clickthrough <- data%>%group_by(`Preferred Partner?`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Preferred.Partner_Bounce <- data%>%group_by(`Preferred Partner?`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Preferred.Partner_Unsubscribe <- data%>%group_by(`Preferred Partner?`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Preferred.Partner.Group <- as.data.frame(c(Preferred.Partner_Open[,1:2],Preferred.Partner_Clickthrough[,2], Preferred.Partner_Bounce[,2], Preferred.Partner_Unsubscribe[,2:3]))
+```
+
+```{r,echo=FALSE}
+#Producers Only Means
+
+Producers_Open <- as.data.frame(data%>%group_by(`Producers Only`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Producers_Clickthrough <- data%>%group_by(`Producers Only`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Producers_Bounce <- data%>%group_by(`Producers Only`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Producers_Unsubscribe <- data%>%group_by(`Producers Only`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Producers.Group <- as.data.frame(c(Producers_Open[,1:2],Producers_Clickthrough[,2], Producers_Bounce[,2], Producers_Unsubscribe[,2:3]))
+
+```
+
+```{r,echo=FALSE}
+#Prospects Means
+
+Prospects_Open <- as.data.frame(data%>%group_by(`Prospects Only`)%>%
+ summarise(mean=mean(`Open Rate`),n()))
+
+Prospects_Clickthrough <- data%>%group_by(`Prospects Only`)%>%
+   summarise(mean=mean(`Clickthrough Rate`),n())
+
+Prospects_Bounce <- data%>%group_by(`Prospects Only`)%>%
+  summarise(mean=mean(`Bounce Rate`),n())
+
+Prospects_Unsubscribe <- data%>%group_by(`Prospects Only`)%>%
+  summarise(mean=mean(`Unsubscribe Rate`),n())
+
+Prospects.Group <- as.data.frame(c(Prospects_Open[,1:2],Prospects_Clickthrough[,2], Prospects_Bounce[,2], Prospects_Unsubscribe[,2:3]))
+
+```
+
+
+
 
