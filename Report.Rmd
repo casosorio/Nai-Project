@@ -33,18 +33,30 @@ Date<-as.data.frame(substr(data$`Send Time`,1,10))
 Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
 Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
-
-Date<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
-
-Date<-Date%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
-
 Time<-Time%>%rename(time="substr(data$`Send Time`, 12, 19)")
 
+Date$date<-gsub("2021","2020",Date$date)
+
+# Creating Days
+Date2<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
+Date2<-Date2%>%rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+
+# Creating Months
+Month<-as.data.frame(months(as.Date(Date$date,'%Y-%m-%d')))
+Month<-Month%>%rename(month=`months(as.Date(Date$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date$date<-as.Date(Date$date)
+Week<-as.data.frame(stringi::stri_datetime_fields(Date$date)$WeekOfMonth)
+Week<-Week%>%rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
+  
+# Combining
 Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
 
-Data2<-cbind(Date,Time,Data2)
+Data2<-cbind(Date2,Time, Month,Week,Data2)
 
-Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
+Data2<-Data2%>%select(ID,date:week,`Reference / Name`:`Unsubscribe Rate`)
+
 ```
 
 # Descriptive Statisitics
