@@ -35,6 +35,8 @@ data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-
 Date<-as.data.frame(substr(data$`Send Time`,1,10))
 Time<-as.data.frame(substr(data$`Send Time`,12,19))
 
+Date<-Date%>%rename(date="substr(data$`Send Time`, 1, 10)")
+
 #Rename Days and Time
 Date<-Date%>%rename(date="`substr(data$`Send Time`, 1, 10)`")
 
