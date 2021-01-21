@@ -40,17 +40,11 @@ Data2<-Data2%>%select(ID,date:time,`Reference / Name`:`Unsubscribe Rate`)
 
 
 ```{r,echo=FALSE}
-data%>%group_by(`email.Type`)%>%
-  summarise(mean=mean(`Open Rate`),n())
-
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Clickthrough Rate`),n())
-
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Bounce Rate`),n())
-
-data%>%group_by(`e-Mail Type`)%>%
-  summarise(mean=mean(`Unsubscribe Rate`),n())
+freq(data$`Blast Message?`)
+freq(data$`Distribution Partner Specific?`)
+freq(data$`Preferred Partner?`)
+freq(data$`Producers Only`)
+freq(data$`Prospects Only`)
 ```
 
 Testing testing 123
