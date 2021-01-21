@@ -47,4 +47,23 @@ freq(data$`Producers Only`)
 freq(data$`Prospects Only`)
 ```
 
-Testing testing 123
+```{r}
+Out.Blast.Message <- boxplot.stats(data$`Blast Message?`)$out
+Out.Distribution <- boxplot.stats(data$`Distribution Partner Specific?`)$out
+Out.Preferred.Partner <- boxplot.stats(data$`Preferred Partner?`)$out
+Out.Producers.Only <- boxplot.stats(data$`Producers Only`)$out
+Out.Prospects.Only <- boxplot.stats(data$`Prospects Only`)$out
+
+out_BM <- which(data$`Blast Message?` %in% c(Out.Blast.Message))
+out_BM
+
+out_Distribution <- which(data$`Distribution Partner Specific?` %in% c(Out.Distribution))
+out_Distribution
+out_Preferred.Partner <- which(data$`Preferred Partner?` %in% c(Out.Preferred.Partner))
+out_Preferred.Partner
+out_Producers <- which(data$`Producers Only` %in% c(Out.Producers.Only))
+out_Producers
+out_Prospects <- which(data$`Prospects Only` %in% c(Out.Prospects.Only))
+out_Prospects
+```
+
