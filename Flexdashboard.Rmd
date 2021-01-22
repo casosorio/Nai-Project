@@ -1,0 +1,66 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(readxl)
+library(tidyverse)
+library(stringr)
+library(psych)
+library(caret)
+library(ggplot2)
+library(car)
+library(ggthemes)
+library(plyr)
+library(scales)
+library(zoo)
+library(descr)
+library(dplyr)
+library(tidymodels)
+library(class)
+library(kknn)
+library(janitor)
+library(CGPfunctions)
+library(summarytools)
+library(ggpubr)
+library(stringi)
+library(hrbrthemes)
+library(tidyr)
+library(viridis)
+library(e1071)
+library(moments)
+library(rstatix)
+
+# Remember to change the location to your computer or flashdrive. 
+data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+

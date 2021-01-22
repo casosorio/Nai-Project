@@ -74,7 +74,7 @@ Data2<-Data2%>%select(ID,date:week,`Reference / Name`:`Unsubscribe Rate`)
 
 ```{r}
 # Basic Desciptives
-summary(Data2)
+psych::describe(Data2)
 ```
 
 
