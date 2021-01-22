@@ -35,8 +35,92 @@ library(moments)
 library(rstatix)
 
 # Remember to change the location to your computer or flashdrive. 
-data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
+
+data2 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
+
+data3 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/William Blair.csv",na.strings="")
+
+data4 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/PGIM Metrics.csv",na.strings="")
+
+data5 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Level Data.csv",na.strings="")
+
+data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Level Data.csv",na.strings="")
+
 ```
+
+```{r}
+data2<-data2%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
+
+data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                           Date=Date.and.time.sent,
+                           Reference.Name=Email.Name,
+                           Opened=X..opened,
+                           Clicked=X..clicked,
+                           Bounced=X..bounced,
+                           Unsubscribed=X..unsubscribed)
+
+data2<-data2%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=send.time,
+                             Reference.Name=reference_name,
+                             From=from,
+                             Mail.Type=mail_type,
+                             Product.Name=product_name,
+                             Subscription=subscription,
+                             Audience.Size=audience_size,
+                             Blast.Message=blast_message,
+                             Distribution.Partner.Specific=distribution_partner_specific,
+                             Preferred.Partner=preferred_partner,
+                             Producers.Only=producers_only,
+                             Prospects.Only=prospects_only,
+                             Opened=open_rate,
+                             Clicked=clickthrough_rate,
+                             Bounced=bounce_rate,
+                             Unsubscribed=unsubscribe_rate)
+
+data3<-data3%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=Send.Time,
+                             Reference.Name=Reference.Name,
+                             From=From,
+                             Mail.Type=Mail.Type,
+                             Product.Name=Product.Name,
+                             Subscription=Subscription,
+                             Audience.Size=Audience.Size,
+                             Blast.Message=Blast.Message,
+                             Distribution.Partner.Specific=Distribution.Partner.Specific,
+                             Preferred.Partner=Preferred.Partner,
+                             Producers.Only=Producers.Only,
+                             Prospects.Only=Prospects.Only,
+                             Opened=Open.Rate,
+                             Clicked=Clickthrough.Rate,
+                             Bounced=Bounce.Rate,
+                             Unsubscribed=Unsubscribe.Rate)
+
+data4<-data4%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=SendStartTime,
+                             Reference.Name=EmailName,
+                             From=From,
+                             Mail.Type=Mail.Type,
+                             Product.Name=Product.Name,
+                             Subscription=Subscription,
+                             Audience.Size=Audience.Size,
+                             Blast.Message=Blast.Message,
+                             Distribution.Partner.Specific=Distribution.Partner.Specific,
+                             Preferred.Partner=Preferred.Partner,
+                             Producers.Only=Producers.Only,
+                             Prospects.Only=Prospects.Only,
+                             Opened=OpenRate,
+                             Clicked=ClickRate,
+                             Bounced=OverallBounceRate,
+                             Unsubscribed=UnsubscribeRate)
+
+
+
+Complete_data<-merge(data,data2,by= c("Manager.Name","Reference.Name","From","Mail.Type","Product.Name","Subscription","Audience.Size",  "Blast.Message","Distribution.Partner.Specific","Preferred.Partner","Producers.Only","Prospects.Only","Opened","Clicked","Bounced","Unsubscribed"))               
+                     colnames(data)
+                     
+```
+
 
 ```{r, include=FALSE}
 #Cleaning up

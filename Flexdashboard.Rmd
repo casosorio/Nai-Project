@@ -74,18 +74,21 @@ Data2<-cbind(Date2,Time, Month,Week,Data2)
 Data2<-Data2%>%select(ID,date:week,`Reference / Name`:`Unsubscribe Rate`)
 ```
 
+Page 1
+===================================== 
+
 Column {data-width=650}
 -----------------------------------------------------------------------
 
 ### Chart A
 
 ```{r}
-
+psych::describe(Data2)
 ```
 
-Column {data-width=350}
------------------------------------------------------------------------
 
+Page 2
+===================================== 
 ### Chart B
 
 ```{r}
