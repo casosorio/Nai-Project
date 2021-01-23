@@ -37,7 +37,7 @@ library(rstatix)
 # Remember to change the location to your computer or flashdrive. 
 data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
 
-data2 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
+Complete_data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
 
 data3 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/William Blair.csv",na.strings="")
 
@@ -50,7 +50,7 @@ data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asse
 ```
 
 ```{r}
-data2<-data2%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
+Complete_data<-Complete_data%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
 
 data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                            Date=Date.and.time.sent,
@@ -60,7 +60,7 @@ data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                            Bounced=X..bounced,
                            Unsubscribed=X..unsubscribed)
 
-data2<-data2%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+Complete_data<-Complete_data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                              Date=send.time,
                              Reference.Name=reference_name,
                              From=from,
@@ -181,7 +181,7 @@ Df$Unsubscribed<-percent(Df$Unsubscribed)
 ```{r}
 # Data 2
 #Cleaning up
-Data_Time2<-strsplit(data2$Date,split = " ")
+Data_Time2<-strsplit(Complete_data$Date,split = " ")
 result2 <-  do.call(rbind, Data_Time2)
 Date2<-as.data.frame(result2[,1])
 Time2<-as.data.frame(result2[,2])
@@ -209,7 +209,7 @@ Week2<-as.data.frame(stringi::stri_datetime_fields(Date2$date)$WeekOfMonth)
 Week2<-Week2%>%dplyr::rename(week="stringi::stri_datetime_fields(Date2$date)$WeekOfMonth")
   
 # Combining
-Df2<-data2%>%select(Manager.Name,Reference.Name:Unsubscribed)
+Df2<-Complete_data%>%select(Manager.Name,Reference.Name:Unsubscribed)
 
 Df2<-cbind(Df2,Date2.1,Time2, Month2,Week2)
 
@@ -309,8 +309,15 @@ Complete_data<-rbind(Complete_data,Df4)
 Complete_data$Audience.Size<-gsub(",", "", Complete_data$Audience.Size) 
 Complete_data$Audience.Size<-as.numeric(Complete_data$Audience.Size)
 
+Complete_data$Opened<-gsub("%","",Complete_data$Opened)
+Complete_data$Clicked<-gsub("%","",Complete_data$Clicked)
+Complete_data$Bounced<-gsub("%","",Complete_data$Bounced)
+Complete_data$Unsubscribed<-gsub("%","",Complete_data$Unsubscribed)
 
-
+Complete_data$Opened<-round(as.numeric(Complete_data$Opened),2)
+Complete_data$Clicked<-round(as.numeric(Complete_data$Clicked),2)
+Complete_data$Bounced<-round(as.numeric(Complete_data$Bounced),2)
+Complete_data$Unsubscribed<-round(as.numeric(Complete_data$Unsubscribed),2)
 ```
 
 
@@ -345,54 +352,54 @@ Out.Bounce.Rate<-boxplot.stats(Complete_data$Bounced)$out
 Out.Unsubscibe.Rate<-boxplot.stats(Complete_data$Unsubscribed)$out
 
 #Boxplot
-ggplot(Data2) +
-  aes(x="",y=`Audience Size`)+
+ggplot(Complete_data) +
+  aes(x="",y=Audience.Size)+
   geom_boxplot(fill="#0c4c8a")+
   theme_minimal()
   
-ggplot(Data2) +
-  aes(x = "", y = `Open Rate`) +
+ggplot(Complete_data) +
+  aes(x = "", y = Opened) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = "", y = `Clickthrough Rate`) +
+ggplot(Complete_data) +
+  aes(x = "", y = Clicked) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = "", y = `Bounce Rate`) +
+ggplot(Complete_data) +
+  aes(x = "", y =Bounced) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = "", y = `Unsubscribe Rate`) +
+ggplot(Complete_data) +
+  aes(x = "", y = Unsubscribed) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
 # Histograms
-ggplot(Data2) +
-  aes(x = `Audience Size`) +
+ggplot(Complete_data) +
+  aes(x = Audience.Size) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = `Open Rate`) +
+ggplot(Complete_data) +
+  aes(x = Opened) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = `Clickthrough Rate`) +
+ggplot(Complete_data) +
+  aes(x = Clicked) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = `Bounce Rate`) +
+ggplot(Complete_data) +
+  aes(x = Bounced) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Data2) +
-  aes(x = `Unsubscribe Rate`) +
+ggplot(Complete_data) +
+  aes(x = Unsubscribed) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
   theme_minimal()
 ```
@@ -400,64 +407,64 @@ ggplot(Data2) +
 ```{r}
 # QQplot
 #Audience Size needs to be fixed
-#qq.Audience.Size <- qqPlot(Data2$Audience.Size)
-qq.Open.Rate<-qqPlot(Data2$`Open Rate`)
-qq.Clickthrough.Rate<-qqPlot(Data2$`Clickthrough Rate`)
-qq.Bounce.Rate<-qqPlot(Data2$`Bounce Rate`)
-qq.Unsubscribe.Rate<-qqPlot(Data2$`Unsubscribe Rate`)
+qq.Audience.Size <- qqPlot(Complete_data$Audience.Size)
+qq.Open.Rate<-qqPlot(Complete_data$Opened)
+qq.Clickthrough.Rate<-qqPlot(Complete_data$Clicked)
+qq.Bounce.Rate<-qqPlot(Complete_data$Bounced)
+qq.Unsubscribe.Rate<-qqPlot(Complete_data$Unsubscribed)
 
 # Density Plot
-ggdensity(Data2$`Audience Size`,
+ggdensity(Complete_data$Audience.Size,
           main= "Density plot of Open Rate",
           xlab = "Audience size")
 
-ggdensity(Data2$`Open Rate`,
+ggdensity(Complete_data$Opened,
           main= "Density plot of Open Rate",
           xlab= "Open Rate")
 
-ggdensity(Data2$`Clickthrough Rate`,
+ggdensity(Complete_data$Clicked,
           main= "Density plot of Clickthrough Rate",
           xlab= "Clickthrough Rate")
 
-ggdensity(Data2$`Bounce Rate`,
+ggdensity(Complete_data$Bounced,
           main= "Density plot of Bounce Rate",
           xlab= "Bounce Rate")
 
-ggdensity(Data2$`Unsubscribe Rate`,
+ggdensity(Complete_data$Unsubscribed,
           main= "Density plot of Unsubscribe Rate",
           xlab= "Unsubscribe Rate")
 
 ##Shapiro-Test Wilks
-shapiro.test(Data2$`Audience Size`)
-shapiro.test(Data2$`Open Rate`)
-shapiro.test(Data2$`Clickthrough Rate`)
-shapiro.test(Data2$`Bounce Rate`)
-shapiro.test(Data2$`Unsubscribe Rate`)
+shapiro.test(Complete_data$Audience.Size)
+shapiro.test(Complete_data$Opened)
+shapiro.test(Complete_data$Clicked)
+shapiro.test(Complete_data$Bounced)
+shapiro.test(Complete_data$Unsubscribed)
 
 #Skewness
-skewness(Data2$`Audience Size`,na.rm = TRUE)
-skewness(Data2$`Open Rate`,na.rm = TRUE)
-skewness(Data2$`Clickthrough Rate`,na.rm = TRUE)
-skewness(Data2$`Bounce Rate`,na.rm = TRUE)
-skewness(Data2$`Unsubscribe Rate`,na.rm = TRUE)
+skewness(Complete_data$Audience.Size,na.rm = TRUE)
+skewness(Complete_data$Opened,na.rm = TRUE)
+skewness(Complete_data$Clicked,na.rm = TRUE)
+skewness(Complete_data$Bounced,na.rm = TRUE)
+skewness(Complete_data$Unsubscribed,na.rm = TRUE)
 
 #kurtosis
-kurtosis(Data2$`Audience Size`,na.rm = TRUE)
-kurtosis(Data2$`Open Rate`,na.rm = TRUE)
-kurtosis(Data2$`Clickthrough Rate`,na.rm = TRUE)
-kurtosis(Data2$`Bounce Rate`,na.rm = TRUE)
-kurtosis(Data2$`Unsubscribe Rate`,na.rm = TRUE)
+kurtosis(Complete_data$Audience.Size,na.rm = TRUE)
+kurtosis(Complete_data$Opened,na.rm = TRUE)
+kurtosis(Complete_data$Clicked,na.rm = TRUE)
+kurtosis(Complete_data$Bounced,na.rm = TRUE)
+kurtosis(Complete_data$Unsubscribed,na.rm = TRUE)
 
 ```
 
 
 ```{r}
 #Quantile
-quantile(Data2$`Open Rate`,na.rm = TRUE)
-quantile(Data2$`Clickthrough Rate`, na.rm = TRUE)
-quantile(Data2$`Bounce Rate`, na.rm=TRUE)
-quantile(Data2$`Unsubscribe Rate`, na.rm = TRUE)
-
+quantile(Complete_data$Audience.Size, na.rm=TRUE)
+quantile(Complete_data$Opened,na.rm = TRUE)
+quantile(Complete_data$Clicked,na.rm = TRUE)
+quantile(Complete_data$Bounced,na.rm=TRUE)
+quantile(Complete_data$Unsubscribed,na.rm=TRUE)
 
 ```
 
@@ -465,75 +472,75 @@ quantile(Data2$`Unsubscribe Rate`, na.rm = TRUE)
 ```{r}
 #Contigency Tables: mean of DVs at each level of each categorical IV
 #From.Firm
-Data2%>%group_by(`From Firm?`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(From)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 #email Type
-Data2%>%group_by(`e-Mail Type`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Mail.Type)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 #Product Name
-Data2%>%group_by(`Product Name(s) (if applicable)`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Product.Name)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 #Subscription
-Data2%>%group_by(`Subscription?`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Subscription)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 # Blast Message
-Data2%>%group_by(`Blast Message?`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Blast.Message)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 # Distribution Partner Specific
-Data2%>%group_by(`Distribution Partner Specific?`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Distribution.Partner.Specific)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 # Preferred Partner
-Data2%>%group_by(`Preferred Partner?`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Preferred.Partner)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 # Producers Only 
-Data2%>%group_by(`Producers Only`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Producers.Only)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 # Prospects 
-Data2%>%group_by(`Prospects Only`)%>%
-  dplyr::summarise(open_mean = mean(`Open Rate`),
-            clickthrough_mean = mean(`Clickthrough Rate`),
-            bounce_mean = mean(`Bounce Rate`),
-            unsubscribe_mean = mean(`Unsubscribe Rate`),
+Complete_data%>%group_by(Prospects.Only)%>%
+  dplyr::summarise(open_mean = mean(Opened),
+            clickthrough_mean = mean(Clicked),
+            bounce_mean = mean(Bounced),
+            unsubscribe_mean = mean(Unsubscribed),
             n())
 
 ```
@@ -543,7 +550,7 @@ Data2%>%group_by(`Prospects Only`)%>%
 
 ```{r}
 # Data visualization
-ggplot(Data2, aes(time, date, fill = `Open Rate`)) +
+ggplot(Complete_data, aes(time, date, fill = Opened)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -553,7 +560,7 @@ ggplot(Data2, aes(time, date, fill = `Open Rate`)) +
        subtitle="Email Open Rate",
        fill="Close")
 #Plot 2
-ggplot(Data2, aes(time, date, fill = `Clickthrough Rate`)) +
+ggplot(Complete_data, aes(time, date, fill = Clicked)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -564,7 +571,7 @@ ggplot(Data2, aes(time, date, fill = `Clickthrough Rate`)) +
        fill="Close")
 
 #Plot 3
-ggplot(Data2, aes(time, date, fill = `Bounce Rate`)) +
+ggplot(Complete_data, aes(time, date, fill = Bounced)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -575,7 +582,7 @@ ggplot(Data2, aes(time, date, fill = `Bounce Rate`)) +
        fill="Close")
 
 #Plot 4
-ggplot(Data2, aes(time, date, fill = `Unsubscribe Rate`)) +
+ggplot(Complete_data, aes(time, date, fill = Unsubscribed)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
