@@ -594,11 +594,11 @@ ggplot(Complete_data, aes(time, date, fill = Unsubscribed)) +
 
 ```{r}
 # Regression and Machine Learning
-validation_index <- createDataPartition(data$Open.Rate, p=0.80, list=FALSE)
+validation_index <- createDataPartition(Complete_data$Opened, p=0.80, list=FALSE)
 
-validation <- data[-validation_index,]
+validation <- Complete_data[-validation_index,]
 
-dataset <- data[validation_index,]
+dataset <- Complete_data[validation_index,]
 
 control <- trainControl(method = "cv", 
                               number = 5,verboseIter = TRUE)
