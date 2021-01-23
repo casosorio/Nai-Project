@@ -115,28 +115,32 @@ data4<-data4%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                              Unsubscribed=UnsubscribeRate)
 
 
-
-Complete_data<-merge(data,data2,by= c("Manager.Name","Reference.Name","From","Mail.Type","Product.Name","Subscription","Audience.Size",  "Blast.Message","Distribution.Partner.Specific","Preferred.Partner","Producers.Only","Prospects.Only","Opened","Clicked","Bounced","Unsubscribed"))               
-                     colnames(data)
+Complete_data<-merge(data2,data3,by= c("Manager.Name","Date","Reference.Name","From","Mail.Type","Product.Name","Subscription","Audience.Size",  "Blast.Message","Distribution.Partner.Specific","Preferred.Partner","Producers.Only","Prospects.Only","Opened","Clicked","Bounced","Unsubscribed"))               
+                     
                      
 ```
 
 
 ```{r, include=FALSE}
+# Data 1
 #Cleaning up
-Date<-as.data.frame(substr(data$`Send Time`,1,10))
-Time<-as.data.frame(substr(data$`Send Time`,12,19))
+Data_Time<-strsplit(data$Date,split = " ")
+result <-  do.call(rbind, Data_Time)
+Date<-as.data.frame(result[,1])
+Time<-as.data.frame(result[,2])
 
 #Rename Days and Time
 
-Date<-Date%>%dplyr::rename(date="substr(data$`Send Time`, 1, 10)")
-Time<-Time%>%dplyr::rename(time="substr(data$`Send Time`, 12, 19)")
+Date<-Date%>%dplyr::rename(date=`result[, 1]`)
+Time<-Time%>%dplyr::rename(time=`result[, 2]`)
 
 Date$date<-gsub("2021","2020",Date$date)
 
+Date$date<-as.Date(as.character(Date$date), format="%m/%d/%Y")
+
 # Creating Days
-Date2<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
-Date2<-Date2%>%dplyr::rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+Date1<-as.data.frame(weekdays(as.Date(Date$date,'%m-%d-%Y')))
+Date1<-Date1%>%dplyr::rename(date='weekdays(as.Date(Date$date, "%m-%d-%Y"))')
 
 # Creating Months
 Month<-as.data.frame(months(as.Date(Date$date,'%Y-%m-%d')))
@@ -148,41 +152,200 @@ Week<-as.data.frame(stringi::stri_datetime_fields(Date$date)$WeekOfMonth)
 Week<-Week%>%dplyr::rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
   
 # Combining
-Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
+Df<-data%>%select(Manager.Name,Reference.Name:Unsubscribed)
 
-Data2<-cbind(Date2,Time, Month,Week,Data2)
+Df<-cbind(Df,Date1,Time, Month,Week)
 
-Data2<-Data2%>%select(ID,date:week,`Reference / Name`:`Unsubscribe Rate`)
+Df<-Df%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+Df$Audience.Size<-gsub(",", "", Df$Audience.Size) 
+Df$Opened<-gsub(",", "", Df$Opened) 
+Df$Clicked<-gsub(",", "", Df$Clicked) 
+
+Df$Audience.Size<-as.numeric(Df$Audience.Size)
+Df$Opened<-as.numeric(Df$Opened)
+Df$Clicked<-as.numeric(Df$Clicked)
+
+Df$Opened<-(Df$Opened/Df$Audience.Size)
+Df$Opened<-percent(Df$Opened)
+
+Df$Clicked<-(Df$Clicked/Df$Audience.Size)
+Df$Clicked<-percent(Df$Clicked)
+
+Df$Bounced<-(Df$Bounced/Df$Audience.Size)
+Df$Bounced<-percent(Df$Bounced)
+
+Df$Unsubscribed<-(Df$Unsubscribed/Df$Audience.Size)
+Df$Unsubscribed<-percent(Df$Unsubscribed)
+
+```
+
+
+```{r}
+# Data 2
+#Cleaning up
+Data_Time2<-strsplit(data2$Date,split = " ")
+result2 <-  do.call(rbind, Data_Time2)
+Date2<-as.data.frame(result2[,1])
+Time2<-as.data.frame(result2[,2])
+
+#Rename Days and Time
+
+Date2<-Date2%>%dplyr::rename(date=`result2[, 1]`)
+Time2<-Time2%>%dplyr::rename(time=`result2[, 2]`)
+
+Date2$date<-gsub("2021","2020",Date2$date)
+
+Date2$date<-as.Date(as.character(Date2$date), format="%m/%d/%Y")
+
+# Creating Days
+Date2.1<-as.data.frame(weekdays(as.Date(Date2$date,'%m-%d-%Y')))
+Date2.1<-Date2.1%>%dplyr::rename(date="weekdays(as.Date(Date2$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month2<-as.data.frame(months(as.Date(Date2$date,'%Y-%m-%d')))
+Month2<-Month2%>%dplyr::rename(month=`months(as.Date(Date2$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date2$date<-as.Date(Date2$date)
+Week2<-as.data.frame(stringi::stri_datetime_fields(Date2$date)$WeekOfMonth)
+Week2<-Week2%>%dplyr::rename(week="stringi::stri_datetime_fields(Date2$date)$WeekOfMonth")
+  
+# Combining
+Df2<-data2%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df2<-cbind(Df2,Date2.1,Time2, Month2,Week2)
+
+Df2<-Df2%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+Df2$Opened<-percent(Df2$Opened)
+
+Df2$Clicked<-percent(Df2$Clicked)
+
+Df2$Bounced<-percent(Df2$Bounced)
+
+Df2$Unsubscribed<-percent(Df2$Unsubscribed)
 
 ```
 
 ```{r}
+# Data 3
+#Cleaning up
+Data_Time3<-strsplit(data3$Date,split = " ")
+result3 <-  do.call(rbind, Data_Time3)
+Date3<-as.data.frame(result3[,1])
+Time3<-as.data.frame(result3[,2])
+
+#Rename Days and Time
+
+Date3<-Date3%>%dplyr::rename(date=`result3[, 1]`)
+Time3<-Time3%>%dplyr::rename(time=`result3[, 2]`)
+
+Date3$date<-gsub("2021","2020",Date3$date)
+
+Date3$date<-as.Date(as.character(Date3$date), format="%m/%d/%Y")
+
+# Creating Days
+Date3.1<-as.data.frame(weekdays(as.Date(Date3$date,'%m-%d-%Y')))
+Date3.1<-Date3.1%>%dplyr::rename(date="weekdays(as.Date(Date3$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month3<-as.data.frame(months(as.Date(Date3$date,'%Y-%m-%d')))
+Month3<-Month3%>%dplyr::rename(month=`months(as.Date(Date3$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date3$date<-as.Date(Date3$date)
+Week3<-as.data.frame(stringi::stri_datetime_fields(Date3$date)$WeekOfMonth)
+Week3<-Week3%>%dplyr::rename(week="stringi::stri_datetime_fields(Date3$date)$WeekOfMonth")
+  
+# Combining
+Df3<-data3%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df3<-cbind(Df3,Date3.1,Time3, Month3,Week3)
+
+Df3<-Df3%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+```
+
+```{r}
+# Data 4
+#Cleaning up
+Data_Time4<-strsplit(data4$Date,split = " ")
+result4 <-  do.call(rbind, Data_Time4)
+Date4<-as.data.frame(result4[,1])
+Time4<-as.data.frame(result4[,2])
+
+#Rename Days and Time
+
+Date4<-Date4%>%dplyr::rename(date=`result4[, 1]`)
+Time4<-Time4%>%dplyr::rename(time=`result4[, 2]`)
+
+Date4$date<-gsub("2021","2020",Date4$date)
+
+Date4$date<-as.Date(as.character(Date4$date), format="%m/%d/%Y")
+
+# Creating Days
+Date4.1<-as.data.frame(weekdays(as.Date(Date4$date,'%m-%d-%Y')))
+Date4.1<-Date4.1%>%dplyr::rename(date="weekdays(as.Date(Date4$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month4<-as.data.frame(months(as.Date(Date4$date,'%Y-%m-%d')))
+Month4<-Month4%>%dplyr::rename(month=`months(as.Date(Date4$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date4$date<-as.Date(Date4$date)
+Week4<-as.data.frame(stringi::stri_datetime_fields(Date4$date)$WeekOfMonth)
+Week4<-Week4%>%dplyr::rename(week="stringi::stri_datetime_fields(Date4$date)$WeekOfMonth")
+  
+# Combining
+Df4<-data4%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df4<-cbind(Df4,Date4.1,Time4, Month4,Week4)
+
+Df4<-Df4%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+```
+
+```{r}
+Complete_data<-rbind(Df,Df2)
+Complete_data<-rbind(Complete_data,Df3)
+Complete_data<-rbind(Complete_data,Df4)
+
+Complete_data$Audience.Size<-gsub(",", "", Complete_data$Audience.Size) 
+Complete_data$Audience.Size<-as.numeric(Complete_data$Audience.Size)
+
+
+
+```
+
+
+
+
+```{r}
 # Basic Desciptives
-psych::describe(Data2)
+psych::describe(Complete_data)
 ```
 
 
 ```{r,echo=FALSE}
 #Frequency
-freq(Data2$`Reference / Name`)
-freq(Data2$`From Firm?`)
-freq(Data2$`e-Mail Type`)
-freq(Data2$`Product Name(s) (if applicable)`)
-freq(Data2$`Subscription?`)
-freq(Data2$`Blast Message?`)
-freq(Data2$`Distribution Partner Specific?`)
-freq(Data2$`Preferred Partner?`)
-freq(Data2$`Producers Only`)
-freq(Data2$`Prospects Only`)
+freq(Complete_data$Manager.Name)
+freq(Complete_data$From)
+freq(Complete_data$Mail.Type)
+freq(Complete_data$Product.Name)
+freq(Complete_data$Subscription)
+freq(Complete_data$Blast.Message)
+freq(Complete_data$Distribution.Partner.Specific)
+freq(Complete_data$Preferred.Partner)
+freq(Complete_data$Producers.Only)
+freq(Complete_data$Prospects.Only)
 ```
 
 ```{r}
 #Outliers
-Out.Audience.Size<-boxplot.stats(Data2$`Audience Size`)$out
-Out.Open.Rate<-boxplot.stats(Data2$`Open Rate`)$out
-Out.Clickthrough.Rate<-boxplot.stats(Data2$`Clickthrough Rate`)$out
-Out.Bounce.Rate<-boxplot.stats(Data2$`Bounce Rate`)$out
-Out.Unsubscibe.Rate<-boxplot.stats(Data2$`Unsubscribe Rate`)$out
+Out.Audience.Size<-boxplot.stats(Complete_data$Audience.Size)$out
+Out.Open.Rate<-boxplot.stats(Complete_data$Opened)$out
+Out.Clickthrough.Rate<-boxplot.stats(Complete_data$Clicked)$out
+Out.Bounce.Rate<-boxplot.stats(Complete_data$Bounced)$out
+Out.Unsubscibe.Rate<-boxplot.stats(Complete_data$Unsubscribed)$out
 
 #Boxplot
 ggplot(Data2) +
