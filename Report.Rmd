@@ -114,9 +114,6 @@ data4<-data4%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                              Bounced=OverallBounceRate,
                              Unsubscribed=UnsubscribeRate)
 
-
-Complete_data<-merge(data2,data3,by= c("Manager.Name","Date","Reference.Name","From","Mail.Type","Product.Name","Subscription","Audience.Size",  "Blast.Message","Distribution.Partner.Specific","Preferred.Partner","Producers.Only","Prospects.Only","Opened","Clicked","Bounced","Unsubscribed"))               
-                     
                      
 ```
 
