@@ -546,12 +546,10 @@ Complete_data%>%group_by(Prospects.Only)%>%
 ```
 
 
-
-
 ```{r}
 # Data visualization
 ggplot(Complete_data, aes(time, date, fill = Opened)) +
-  geom_tile(colour = "white") +
+  geom_tile(colour = "blue") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
   labs(x="Time of Day",
