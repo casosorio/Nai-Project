@@ -33,11 +33,15 @@ library(viridis)
 library(e1071)
 library(moments)
 library(rstatix)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caTools)
 
 # Remember to change the location to your computer or flashdrive. 
 data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
 
-Complete_data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
+data2 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
 
 data3 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/William Blair.csv",na.strings="")
 
@@ -50,7 +54,7 @@ data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asse
 ```
 
 ```{r}
-Complete_data<-Complete_data%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
+data2<-data2%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
 
 data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                            Date=Date.and.time.sent,
@@ -60,7 +64,7 @@ data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                            Bounced=X..bounced,
                            Unsubscribed=X..unsubscribed)
 
-Complete_data<-Complete_data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+data2<-data2%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
                              Date=send.time,
                              Reference.Name=reference_name,
                              From=from,
@@ -181,7 +185,7 @@ Df$Unsubscribed<-percent(Df$Unsubscribed)
 ```{r}
 # Data 2
 #Cleaning up
-Data_Time2<-strsplit(Complete_data$Date,split = " ")
+Data_Time2<-strsplit(data2$Date,split = " ")
 result2 <-  do.call(rbind, Data_Time2)
 Date2<-as.data.frame(result2[,1])
 Time2<-as.data.frame(result2[,2])
@@ -192,8 +196,10 @@ Date2<-Date2%>%dplyr::rename(date=`result2[, 1]`)
 Time2<-Time2%>%dplyr::rename(time=`result2[, 2]`)
 
 Date2$date<-gsub("2021","2020",Date2$date)
+Time2$time<-gsub("12","00",Time2$time)
 
 Date2$date<-as.Date(as.character(Date2$date), format="%m/%d/%Y")
+
 
 # Creating Days
 Date2.1<-as.data.frame(weekdays(as.Date(Date2$date,'%m-%d-%Y')))
@@ -209,7 +215,7 @@ Week2<-as.data.frame(stringi::stri_datetime_fields(Date2$date)$WeekOfMonth)
 Week2<-Week2%>%dplyr::rename(week="stringi::stri_datetime_fields(Date2$date)$WeekOfMonth")
   
 # Combining
-Df2<-Complete_data%>%select(Manager.Name,Reference.Name:Unsubscribed)
+Df2<-data2%>%select(Manager.Name,Reference.Name:Unsubscribed)
 
 Df2<-cbind(Df2,Date2.1,Time2, Month2,Week2)
 
@@ -378,6 +384,8 @@ ggplot(Complete_data) +
   theme_minimal()
 
 # Histograms
+
+
 ggplot(Complete_data) +
   aes(x = Audience.Size) +
   geom_histogram(bins = 30L, fill = "#0c4c8a") +
@@ -676,4 +684,15 @@ summary(model.lm)
 predictions <- predict(model.lm, validation)
 confusionMatrix(predictions, validation$Unsubscribe.Rate)
 ```
+
+```{r}
+regression_model<-lm(Opened~date+month+Reference.Name+From+Mail.Type+Product.Name+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only,data=Complete_data)
+
+summary(regression_model)
+
+
+
+```
+
+
 
