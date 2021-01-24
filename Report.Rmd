@@ -49,7 +49,7 @@ data4 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/PGIM
 
 data5 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Level Data.csv",na.strings="")
 
-data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Level Data.csv",na.strings="")
+data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Product Data.csv",na.strings="")
 
 ```
 
@@ -691,6 +691,28 @@ regression_model<-lm(Opened~date+month+Reference.Name+From+Mail.Type+Product.Nam
 summary(regression_model)
 
 
+dt = sort(sample(nrow(Complete_data), nrow(Complete_data)*.7))
+train<-Complete_data[dt,]
+test<-Complete_data[-dt,]
+
+k_fold<-vfold_cv(train)
+
+model_rec<-recipe(Opened~date+month+Reference.Name+From+Mail.Type+Product.Name+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, train) %>%
+  step_range(all_numeric())
+
+m_metrics<-metric_set(accuracy, sens, spec, roc_auc, mn_log_loss)
+
+m_control<-control_grid(save_pred =TRUE)
+
+model2<-nearest_neighbor(neighbors =tune("K")) %>%
+  set_mode("classification") %>%
+  set_engine("kknn")
+
+set.seed(123)
+knn_tune<-tune_grid(model2,
+                    model_rec,resamples = k_fold,
+                    control=m_control,
+                    metrics = m_metrics)
 
 ```
 
