@@ -690,14 +690,51 @@ regression_model<-lm(Opened~date+month+Reference.Name+From+Mail.Type+Product.Nam
 
 summary(regression_model)
 
+## Changing to factors
+Complete_data_factors<-Complete_data
 
-dt = sort(sample(nrow(Complete_data), nrow(Complete_data)*.7))
-train<-Complete_data[dt,]
-test<-Complete_data[-dt,]
+mean(Complete_data[,17],na.rm = TRUE)
+mean(Complete_data[,18],na.rm = TRUE)
+mean(Complete_data[,19],na.rm = TRUE)
+mean(Complete_data[,20],na.rm = TRUE)
+
+Complete_data_factors$Opened[Complete_data$Opened < 17] <- 0
+Complete_data_factors$Opened[Complete_data$Opened > 17] <- 1 
+
+Complete_data_factors$Clicked[Complete_data$Clicked < 6.5] <- 0
+Complete_data_factors$Clicked[Complete_data$Clicked > 6.5] <- 1
+
+Complete_data_factors$Bounced[Complete_data$Bounced < 1.3] <- 0
+Complete_data_factors$Bounced[Complete_data$Bounced > 1.3] <- 1
+
+Complete_data_factors$Unsubscribed[Complete_data < 0.01] <- 0
+Complete_data_factors$Unsubscribed[Complete_data > 0.01] <- 1
+
+Complete_data_factors$Opened<-as.factor(Complete_data_factors$Opened)
+
+
+Complete_data_factors<-Complete_data%>% mutate(From=recode_factor(From,
+                                               "TRUE"='1',
+                                               "FALSE"='0'))
+
+
+
+
+Complete_data_factors$Subscription<-as.factor(Complete_data_factors$Subscription)
+Complete_data_factors$Distribution.Partner.Specific<-as.factor(Complete_data_factors$Distribution.Partner.Specific)
+Complete_data_factors$Preferred.Partner<-as.factor(Complete_data_factors$Preferred.Partner)
+Complete_data_factors$Producers.Only<-as.factor(Complete_data_factors$Producers.Only)
+Complete_data_factors$Prospects.Only<-as.factor(Complete_data_factors$Prospects.Only)
+
+
+
+dt = sort(sample(nrow(Complete_data_factors), nrow(Complete_data_factors)*.7))
+train<-Complete_data_factors[dt,]
+test<-Complete_data_factors[-dt,]
 
 k_fold<-vfold_cv(train)
 
-model_rec<-recipe(Opened~date+month+Reference.Name+From+Mail.Type+Product.Name+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, train) %>%
+model_rec<-recipe(Opened~From+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, train) %>%
   step_range(all_numeric())
 
 m_metrics<-metric_set(accuracy, sens, spec, roc_auc, mn_log_loss)
@@ -713,6 +750,8 @@ knn_tune<-tune_grid(model2,
                     model_rec,resamples = k_fold,
                     control=m_control,
                     metrics = m_metrics)
+
+
 
 ```
 

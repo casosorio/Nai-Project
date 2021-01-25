@@ -92,11 +92,33 @@ Page 2
 ### Chart B
 
 ```{r}
-Open<-mean(Complete_data[1:131,17],na.rm=TRUE)
+Open<-mean(Complete_data$Opened,na.rm=TRUE)
 gauge(Open,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
   success=c(80,100),warning=c(40,79),danger=c(0,39)
 ))
 ```
+
+```{r}
+Clicked<-mean(Complete_data$Clicked,na.rm=TRUE)
+gauge(Open,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
+```{r}
+Bounced<-mean(Complete_data$Bounced,na.rm=TRUE)
+gauge(Open,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
+```{r}
+Unsubscribed<-mean(Complete_data$Unsubscribed,na.rm=TRUE)
+gauge(Open,min = 0, max = 100, symbol='%', sectors=gaugeSectors(
+  success=c(80,100),warning=c(40,79),danger=c(0,39)
+))
+```
+
 
 ### Chart C
 
