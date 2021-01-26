@@ -8,6 +8,9 @@ output:
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+library(dygraphs)
+library(shiny)
+library(DT)
 library(readxl)
 library(tidyverse)
 library(stringr)
@@ -35,27 +38,111 @@ library(viridis)
 library(e1071)
 library(moments)
 library(rstatix)
-library(dygraphs)
-library(shiny)
-library(DT)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caTools)
+library(arsenal)
+library(qwraps2)
+options(qwraps2_markup= "markdown")
 
 # Remember to change the location to your computer or flashdrive. 
-data <- read_excel("E:/Montclair State University/EagleIO/Naissance/Naissance e-Mail Metrics Pilot - Data Template.xlsx")
+data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
 
+data2 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Hartford-Funds.csv",na.strings="")
+
+data3 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/William Blair.csv",na.strings="")
+
+data4 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/PGIM Metrics.csv",na.strings="")
+
+data5 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Level Data.csv",na.strings="")
+
+data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asset Manager Product Data.csv",na.strings="")
+
+data2<-data2%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
+
+data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                           Date=Date.and.time.sent,
+                           Reference.Name=Email.Name,
+                           Opened=X..opened,
+                           Clicked=X..clicked,
+                           Bounced=X..bounced,
+                           Unsubscribed=X..unsubscribed)
+
+data2<-data2%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=send.time,
+                             Reference.Name=reference_name,
+                             From=from,
+                             Mail.Type=mail_type,
+                             Product.Name=product_name,
+                             Subscription=subscription,
+                             Audience.Size=audience_size,
+                             Blast.Message=blast_message,
+                             Distribution.Partner.Specific=distribution_partner_specific,
+                             Preferred.Partner=preferred_partner,
+                             Producers.Only=producers_only,
+                             Prospects.Only=prospects_only,
+                             Opened=open_rate,
+                             Clicked=clickthrough_rate,
+                             Bounced=bounce_rate,
+                             Unsubscribed=unsubscribe_rate)
+
+data3<-data3%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=Send.Time,
+                             Reference.Name=Reference.Name,
+                             From=From,
+                             Mail.Type=Mail.Type,
+                             Product.Name=Product.Name,
+                             Subscription=Subscription,
+                             Audience.Size=Audience.Size,
+                             Blast.Message=Blast.Message,
+                             Distribution.Partner.Specific=Distribution.Partner.Specific,
+                             Preferred.Partner=Preferred.Partner,
+                             Producers.Only=Producers.Only,
+                             Prospects.Only=Prospects.Only,
+                             Opened=Open.Rate,
+                             Clicked=Clickthrough.Rate,
+                             Bounced=Bounce.Rate,
+                             Unsubscribed=Unsubscribe.Rate)
+
+data4<-data4%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
+                             Date=SendStartTime,
+                             Reference.Name=EmailName,
+                             From=From,
+                             Mail.Type=Mail.Type,
+                             Product.Name=Product.Name,
+                             Subscription=Subscription,
+                             Audience.Size=Audience.Size,
+                             Blast.Message=Blast.Message,
+                             Distribution.Partner.Specific=Distribution.Partner.Specific,
+                             Preferred.Partner=Preferred.Partner,
+                             Producers.Only=Producers.Only,
+                             Prospects.Only=Prospects.Only,
+                             Opened=OpenRate,
+                             Clicked=ClickRate,
+                             Bounced=OverallBounceRate,
+                             Unsubscribed=UnsubscribeRate)
+
+
+# Data 1
 #Cleaning up
-Date<-as.data.frame(substr(data$`Send Time`,1,10))
-Time<-as.data.frame(substr(data$`Send Time`,12,19))
+Data_Time<-strsplit(data$Date,split = " ")
+result <-  do.call(rbind, Data_Time)
+Date<-as.data.frame(result[,1])
+Time<-as.data.frame(result[,2])
 
 #Rename Days and Time
 
-Date<-Date%>%dplyr::rename(date="substr(data$`Send Time`, 1, 10)")
-Time<-Time%>%dplyr::rename(time="substr(data$`Send Time`, 12, 19)")
+Date<-Date%>%dplyr::rename(date=`result[, 1]`)
+Time<-Time%>%dplyr::rename(time=`result[, 2]`)
 
 Date$date<-gsub("2021","2020",Date$date)
 
+Date$date<-as.Date(as.character(Date$date), format="%m/%d/%Y")
+
 # Creating Days
-Date2<-as.data.frame(weekdays(as.Date(Date$date,'%Y-%m-%d')))
-Date2<-Date2%>%dplyr::rename(date='weekdays(as.Date(Date$date, "%Y-%m-%d"))')
+Date1<-as.data.frame(weekdays(as.Date(Date$date,'%m-%d-%Y')))
+Date1<-Date1%>%dplyr::rename(date='weekdays(as.Date(Date$date, "%m-%d-%Y"))')
 
 # Creating Months
 Month<-as.data.frame(months(as.Date(Date$date,'%Y-%m-%d')))
@@ -67,12 +154,206 @@ Week<-as.data.frame(stringi::stri_datetime_fields(Date$date)$WeekOfMonth)
 Week<-Week%>%dplyr::rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
   
 # Combining
-Data2<-data%>%select(ID,`Reference / Name`:`Unsubscribe Rate`)
+Df<-data%>%select(Manager.Name,Reference.Name:Unsubscribed)
 
-Data2<-cbind(Date2,Time, Month,Week,Data2)
+Df<-cbind(Df,Date1,Time, Month,Week)
 
-Data2<-Data2%>%select(ID,date:week,`Reference / Name`:`Unsubscribe Rate`)
+Df<-Df%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+Df$Audience.Size<-gsub(",", "", Df$Audience.Size) 
+Df$Opened<-gsub(",", "", Df$Opened) 
+Df$Clicked<-gsub(",", "", Df$Clicked) 
+
+Df$Audience.Size<-as.numeric(Df$Audience.Size)
+Df$Opened<-as.numeric(Df$Opened)
+Df$Clicked<-as.numeric(Df$Clicked)
+
+Df$Opened<-(Df$Opened/Df$Audience.Size)
+Df$Opened<-percent(Df$Opened)
+
+Df$Clicked<-(Df$Clicked/Df$Audience.Size)
+Df$Clicked<-percent(Df$Clicked)
+
+Df$Bounced<-(Df$Bounced/Df$Audience.Size)
+Df$Bounced<-percent(Df$Bounced)
+
+Df$Unsubscribed<-(Df$Unsubscribed/Df$Audience.Size)
+Df$Unsubscribed<-percent(Df$Unsubscribed)
+
+
+# Data 2
+#Cleaning up
+Data_Time2<-strsplit(data2$Date,split = " ")
+result2 <-  do.call(rbind, Data_Time2)
+Date2<-as.data.frame(result2[,1])
+Time2<-as.data.frame(result2[,2])
+
+#Rename Days and Time
+
+Date2<-Date2%>%dplyr::rename(date=`result2[, 1]`)
+Time2<-Time2%>%dplyr::rename(time=`result2[, 2]`)
+
+Date2$date<-gsub("2021","2020",Date2$date)
+Time2$time<-gsub("12","00",Time2$time)
+
+Date2$date<-as.Date(as.character(Date2$date), format="%m/%d/%Y")
+
+
+# Creating Days
+Date2.1<-as.data.frame(weekdays(as.Date(Date2$date,'%m-%d-%Y')))
+Date2.1<-Date2.1%>%dplyr::rename(date="weekdays(as.Date(Date2$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month2<-as.data.frame(months(as.Date(Date2$date,'%Y-%m-%d')))
+Month2<-Month2%>%dplyr::rename(month=`months(as.Date(Date2$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date2$date<-as.Date(Date2$date)
+Week2<-as.data.frame(stringi::stri_datetime_fields(Date2$date)$WeekOfMonth)
+Week2<-Week2%>%dplyr::rename(week="stringi::stri_datetime_fields(Date2$date)$WeekOfMonth")
+  
+# Combining
+Df2<-data2%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df2<-cbind(Df2,Date2.1,Time2, Month2,Week2)
+
+Df2<-Df2%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+Df2$Opened<-percent(Df2$Opened)
+
+Df2$Clicked<-percent(Df2$Clicked)
+
+Df2$Bounced<-percent(Df2$Bounced)
+
+Df2$Unsubscribed<-percent(Df2$Unsubscribed)
+
+
+# Data 3
+#Cleaning up
+Data_Time3<-strsplit(data3$Date,split = " ")
+result3 <-  do.call(rbind, Data_Time3)
+Date3<-as.data.frame(result3[,1])
+Time3<-as.data.frame(result3[,2])
+
+#Rename Days and Time
+
+Date3<-Date3%>%dplyr::rename(date=`result3[, 1]`)
+Time3<-Time3%>%dplyr::rename(time=`result3[, 2]`)
+
+Date3$date<-gsub("2021","2020",Date3$date)
+
+Date3$date<-as.Date(as.character(Date3$date), format="%m/%d/%Y")
+
+# Creating Days
+Date3.1<-as.data.frame(weekdays(as.Date(Date3$date,'%m-%d-%Y')))
+Date3.1<-Date3.1%>%dplyr::rename(date="weekdays(as.Date(Date3$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month3<-as.data.frame(months(as.Date(Date3$date,'%Y-%m-%d')))
+Month3<-Month3%>%dplyr::rename(month=`months(as.Date(Date3$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date3$date<-as.Date(Date3$date)
+Week3<-as.data.frame(stringi::stri_datetime_fields(Date3$date)$WeekOfMonth)
+Week3<-Week3%>%dplyr::rename(week="stringi::stri_datetime_fields(Date3$date)$WeekOfMonth")
+  
+# Combining
+Df3<-data3%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df3<-cbind(Df3,Date3.1,Time3, Month3,Week3)
+
+Df3<-Df3%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+
+# Data 4
+#Cleaning up
+Data_Time4<-strsplit(data4$Date,split = " ")
+result4 <-  do.call(rbind, Data_Time4)
+Date4<-as.data.frame(result4[,1])
+Time4<-as.data.frame(result4[,2])
+
+#Rename Days and Time
+
+Date4<-Date4%>%dplyr::rename(date=`result4[, 1]`)
+Time4<-Time4%>%dplyr::rename(time=`result4[, 2]`)
+
+Date4$date<-gsub("2021","2020",Date4$date)
+
+Date4$date<-as.Date(as.character(Date4$date), format="%m/%d/%Y")
+
+# Creating Days
+Date4.1<-as.data.frame(weekdays(as.Date(Date4$date,'%m-%d-%Y')))
+Date4.1<-Date4.1%>%dplyr::rename(date="weekdays(as.Date(Date4$date, \"%m-%d-%Y\"))")
+
+# Creating Months
+Month4<-as.data.frame(months(as.Date(Date4$date,'%Y-%m-%d')))
+Month4<-Month4%>%dplyr::rename(month=`months(as.Date(Date4$date, "%Y-%m-%d"))`)
+
+# Creating Week
+Date4$date<-as.Date(Date4$date)
+Week4<-as.data.frame(stringi::stri_datetime_fields(Date4$date)$WeekOfMonth)
+Week4<-Week4%>%dplyr::rename(week="stringi::stri_datetime_fields(Date4$date)$WeekOfMonth")
+  
+# Combining
+Df4<-data4%>%select(Manager.Name,Reference.Name:Unsubscribed)
+
+Df4<-cbind(Df4,Date4.1,Time4, Month4,Week4)
+
+Df4<-Df4%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
+
+Complete_data<-rbind(Df,Df2)
+Complete_data<-rbind(Complete_data,Df3)
+Complete_data<-rbind(Complete_data,Df4)
+
+Complete_data2<-Complete_data[-c(132),]
+
+Complete_data2$Audience.Size<-gsub(",", "", Complete_data2$Audience.Size) 
+Complete_data2$Audience.Size<-as.numeric(Complete_data2$Audience.Size)
+
+Complete_data2$Opened<-gsub("%","",Complete_data2$Opened)
+Complete_data2$Clicked<-gsub("%","",Complete_data2$Clicked)
+Complete_data2$Bounced<-gsub("%","",Complete_data2$Bounced)
+Complete_data2$Unsubscribed<-gsub("%","",Complete_data2$Unsubscribed)
+
+Complete_data2$Opened<-round(as.numeric(Complete_data2$Opened),2)
+Complete_data2$Clicked<-round(as.numeric(Complete_data2$Clicked),2)
+Complete_data2$Bounced<-round(as.numeric(Complete_data2$Bounced),2)
+Complete_data2$Unsubscribed<-round(as.numeric(Complete_data2$Unsubscribed),2)
+
+
+data5<-data5%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
+
+data6<-data6%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
+
+Complete_data3<-left_join(Complete_data2,data5,by='Manager.Name')
+
+data6<-data6%>%select(Manager.Name:As.of.Date)
+
+Complete_data4<-left_join(Complete_data3,data6, by='Manager.Name')
+
+Complete_data4<-Complete_data4%>%dplyr::rename(As.of.Date.=As.of.Date.x)
+
+Complete_data4<-Complete_data4%>%select(ID,Manager.Name,Asset.Manager.Legal.Name:Focus.Status,date:Unsubscribed)
+
+Complete_data4<-Complete_data4%>%dplyr::rename(Asset.Manager.AUM.Dollars.Million=Asset.Manager.AUM...M.,
+                                               Asset.Manager.Inter.AUM.Dollars.Million=Asset.Manager.Intermediary.AUM...M.,
+                                               AUM.Dollars.Million=AUM...m.)
+
+Complete_data4$Asset.Manager.AUM.Dollars.Million<-gsub(",","",Complete_data4$Asset.Manager.AUM.Dollars.Million)
+Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million<-gsub(",","",Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million)
+Complete_data4$AUM.Dollars.Million<-gsub(",","",Complete_data4$AUM.Dollars.Million)
+
+
+
+Complete_data4$Asset.Manager.AUM.Dollars.Million<-as.numeric(Complete_data4$Asset.Manager.AUM.Dollars.Million)
+Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million<-as.numeric(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million)
+Complete_data4$AUM.Dollars.Million<-as.numeric(Complete_data4$AUM.Dollars.Million)
+
+table_one<-tableby(ID~.,data = Complete_data4)
+
 ```
+
+
 
 Page 1
 ===================================== 
@@ -83,7 +364,7 @@ Column {data-width=650}
 ### Chart A
 
 ```{r}
-psych::describe(Data2)
+summary(table_one)
 ```
 
 

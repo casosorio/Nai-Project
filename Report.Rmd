@@ -37,6 +37,9 @@ library(rpart)
 library(rpart.plot)
 library(randomForest)
 library(caTools)
+library(arsenal)
+library(qwraps2)
+options(qwraps2_markup= "markdown")
 
 # Remember to change the location to your computer or flashdrive. 
 data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
@@ -328,12 +331,127 @@ Complete_data2$Bounced<-round(as.numeric(Complete_data2$Bounced),2)
 Complete_data2$Unsubscribed<-round(as.numeric(Complete_data2$Unsubscribed),2)
 ```
 
+```{r}
+data5<-data5%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
+
+data6<-data6%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
+
+Complete_data3<-left_join(Complete_data2,data5,by='Manager.Name')
+
+data6<-data6%>%select(Manager.Name:As.of.Date)
+
+Complete_data4<-left_join(Complete_data3,data6, by='Manager.Name')
+
+Complete_data4<-Complete_data4%>%dplyr::rename(As.of.Date.=As.of.Date.x)
+
+Complete_data4<-Complete_data4%>%select(ID,Manager.Name,Asset.Manager.Legal.Name:Focus.Status,date:Unsubscribed)
+
+Complete_data4<-Complete_data4%>%dplyr::rename(Asset.Manager.AUM.Dollars.Million=Asset.Manager.AUM...M.,
+                                               Asset.Manager.Inter.AUM.Dollars.Million=Asset.Manager.Intermediary.AUM...M.,
+                                               AUM.Dollars.Million=AUM...m.)
+
+Complete_data4$Asset.Manager.AUM.Dollars.Million<-gsub(",","",Complete_data4$Asset.Manager.AUM.Dollars.Million)
+Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million<-gsub(",","",Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million)
+Complete_data4$AUM.Dollars.Million<-gsub(",","",Complete_data4$AUM.Dollars.Million)
+
+
+
+Complete_data4$Asset.Manager.AUM.Dollars.Million<-as.numeric(Complete_data4$Asset.Manager.AUM.Dollars.Million)
+Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million<-as.numeric(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million)
+Complete_data4$AUM.Dollars.Million<-as.numeric(Complete_data4$AUM.Dollars.Million)
+
+
+```
+
+
+# Descriptives
+
+```{r}
+Numbers<-Complete_data4%>%select(Asset.Manager.AUM.Dollars.Million,Asset.Manager.Inter.AUM.Dollars.Million,AUM.Dollars.Million,Audience.Size,Opened,Clicked,Bounced,Unsubscribed)
+
+summary_statistics<-
+  list(
+    "Asset Manager AUM ($M)"=
+      list(
+        "mean (sd)" = ~qwraps2::mean_sd(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
+        "min" = ~min(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
+        "max" = ~max(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Asset.Manager.AUM.Dollars.Million))
+      ),
+    "Asset Manager Intermediary AUM ($M)"=
+    list(
+        "mean (sd)" = ~qwraps2::mean_sd(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
+        "min" = ~min(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
+        "max" = ~max(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Asset.Manager.Inter.AUM.Dollars.Million))
+      ),
+    "AUM ($m)"=
+      list(
+        "mean (sd)" = ~qwraps2::mean_sd(AUM.Dollars.Million, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(AUM.Dollars.Million, na_rm=TRUE),
+        "min" = ~min(AUM.Dollars.Million, na_rm=TRUE),
+        "max" = ~max(AUM.Dollars.Million, na_rm=TRUE),
+        "Missing" = ~sum(is.na(AUM.Dollars.Million))
+      ),
+    "Audience Size"=
+      list(
+        "mean (sd)" = ~qwraps2::mean_sd(Audience.Size, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Audience.Size, na_rm=TRUE),
+        "min" = ~min(Audience.Size, na_rm=TRUE),
+        "max" = ~max(Audience.Size, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Audience.Size))
+      ),
+    "Open Rate"=
+            list(
+        "mean (sd)" = ~qwraps2::mean_sd(Opened, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Opened, na_rm=TRUE),
+        "min" = ~min(Opened, na_rm=TRUE),
+        "max" = ~max(Opened, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Opened))
+      ),
+    "Click Rate"=
+          list(
+        "mean (sd)" = ~qwraps2::mean_sd(Clicked, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Clicked, na_rm=TRUE),
+        "min" = ~min(Clicked, na_rm=TRUE),
+        "max" = ~max(Clicked, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Clicked))
+      ),
+    "Bounced Rate"=
+      list(
+        "mean (sd)" = ~qwraps2::mean_sd(Bounced, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Bounced, na_rm=TRUE),
+        "min" = ~min(Bounced, na_rm=TRUE),
+        "max" = ~max(Bounced, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Bounced))
+      ),
+    "Unsubscribe Rate"=
+            list(
+        "mean (sd)" = ~qwraps2::mean_sd(Unsubscribed, na_rm=TRUE),
+        "median (Q1, Q3)"= ~qwraps2::median_iqr(Unsubscribed, na_rm=TRUE),
+        "min" = ~min(Unsubscribed, na_rm=TRUE),
+        "max" = ~max(Unsubscribed, na_rm=TRUE),
+        "Missing" = ~sum(is.na(Unsubscribed))))
+summary_table(Complete_data4,summary_statistics)
+   
+```
+
+```{r}
+#Another table
+table_one<-tableby(ID~.,data = Complete_data4)
+summary(table_one)
+
+```
+
+
 
 
 
 ```{r}
 # Basic Desciptives
-psych::describe(Complete_data2)
+psych::describe(Complete_data4)
 ```
 
 
@@ -798,7 +916,7 @@ Complete_data_SD_2$Opened[Complete_data_SD_2$Opened > 0] <- 1
 Complete_data_SD_2$Opened<-as.factor(Complete_data_SD_2$Opened)
 
 
-df_split<-initial_split(Complete_data_SD_2,prop=.7,strata = Opened)
+df_split<-initial_split(Complete_data_SD_2,prop=.8,strata = Opened)
 df.train<-training(df_split)
 df.test<-testing(df_split)
 
