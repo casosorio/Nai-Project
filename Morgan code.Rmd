@@ -4,25 +4,28 @@ author: "Morgan Russell"
 date: "1/18/2021"
 output: html_document
 ---
-1
-NOTE TO SELF: This is for testing descriptives. You need to make:
-  boxplots
-  qq plots
-  detect outliers
-  remove outliers
-  contingency tables
 
-Numeric variables:
-  Audience.Size
-  AUM
-  Morningstar.Rating
-  US.AUM
-  US.Intermediary.AUM
-  Open.Rate
-  Clickthrough.Rate
-  Bounce.Rate
-  Unsubscribe.Rate
+This is where I am testing my descriptive statistics and visualizations for the Naissance project.
 
+Key takeaways:
+
+- Our dependent variables are greatly positively skewed, which will require data transformation to address. It will be important to discuss which one we use before we move forward to ensure consistency.
+- Unsubscribe rate is a basically useless variable, since it doesn't *vary* in the first place. Further analysis shouldn't look at it at all. This version includes my analyses of it to illustrate this but will remove it later.
+- Although there is an overall negative relationship between audience size and the DVs, the scatterplots show that this is mainly the result of outliers and should vanish once we remove them. The only takeaway from these plots is that emails with extremely high audience sizes consistently have low open and clickthrough rates. This raises the possibility that more highly-targeted emails may be more effective--a direction for future investigation.
+- Each company has similar average open and clickthrough rates; no clear front-runner.
+- Friday has the highest open rate of any day.
+
+I've excluded the following variables from my analysis, either due to not knowing how to analyze them (time of day) in their current form, or for them not being worth analyzing:
+
+- time
+- week (is it the week of the month, i.e. first week, second week, etc.?)
+- Product.Name
+
+I've been confused as to whether the DVs are raw values or rates. This version treats them as rates, but if they are not then they'll need to be mutated into rate variables, otherwise my analyses will be biased by the audience size.
+
+There are only FALSE values for Blast.Message. Is this a problem with our data or accurate?
+
+When I visualize each DV separately, I would prefer to facet_wrap them together (rather than just having each plot come after the other vertically), both to better organize the output file and also to substantially reduce the length of my code. However, I can't for the life of me figured out how to do that. Would appreciate any advice on this.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -37,25 +40,50 @@ library(ggplot2)
 library(dplyr)
 library(scales)
 library(car)
-```
-
-```{r message=FALSE, warning=FALSE, echo=FALSE}
-#Create contingency tables
-
-#count
-count_contingency <- table(data$From.Firm, data$Subscription)
-
-#relative frequency
-relative_frequency_contingency <- prop.table(count_contingency, margin = 1) #margin = 1 means rows sum to 1, =2 columns sum to 1
-
-count_contingency
-
-#relative_frequency_contingency
-
-table(data$From.Firm)
+library(modeest)
+library(pastecs)
 ```
 
 ```{r}
+completeData <- read.csv("Complete_data.csv")
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+#This code doesn't work anymore for some reason
+
+#Create contingency tables
+
+#count
+#count_contingency <- table(completeData$From, completeData$Subscription)
+
+#relative frequency
+#relative_frequency_contingency <- prop.table(count_contingency, margin = 1) #margin = 1 means rows sum to 1, =2 columns sum to 1
+
+#count_contingency
+
+#relative_frequency_contingency
+
+#table(completeData$From)
+```
+
+# At a glance
+
+```{r}
+glimpse(completeData)
+```
+
+# Descriptive table for DVs
+
+```{r}
+completeData %>% 
+  select(Opened, Clicked, Bounced, Unsubscribed) %>% 
+  stat.desc() %>% 
+  round(2)
+```
+
+# Outliers
+
+```{r echo=TRUE}
 #Detect outliers in a variable; does not delete, only identifies
 #outliers defined as > 1.5 * IQR
 #should we use Mahalanobis (multivariate) instead?
@@ -63,127 +91,524 @@ table(data$From.Firm)
 #note to self: this code sucks. Figure out how to do this without double-assigning.
 #also, is there a way to do this for every variable at once?
 
-out.Audience.Size <- boxplot.stats(data$Audience.Size)
+out.Audience.Size <- boxplot.stats(completeData$Audience.Size)
 out.Audience.Size <-out.Audience.Size$out
+out.Audience.Size
 
-out.AUM <- boxplot.stats(data$out.Unsubscribe.Rate)
+out.AUM <- boxplot.stats(completeData$out.Unsubscribed)
 out.AUM <- out.AUM$out
+out.AUM
 
-out.Morningstar.Rating <- boxplot.stats(data$Morningstar.Rating)
+out.Morningstar.Rating <- boxplot.stats(completeData$Morningstar.Rating)
 out.Morningstar.Rating <- out.Morningstar.Rating$out
 
-out.US.AUM <- boxplot.stats(data$US.AUM)
+out.US.AUM <- boxplot.stats(completeData$US.AUM)
 out.US.AUM <- out.US.AUM$out
+out.US.AUM
 
-out.US.Intermediary.AUM <- boxplot.stats(data$US.Intermediary.AUM)
+out.US.Intermediary.AUM <- boxplot.stats(completeData$US.Intermediary.AUM)
 out.US.Intermediary.AUM <- out.US.Intermediary.AUM$out
+out.US.Intermediary.AUM
 
-out.Open.Rate <- boxplot.stats(data$Open.Rate)
-out.Open.Rate <- out.Open.Rate$out
+out.Opened <- boxplot.stats(completeData$Opened)
+out.Opened <- out.Opened$out
+out.Opened
 
-out.Clickthrough.Rate <- boxplot.stats(data$Clickthrough.Rate)
+out.Clickthrough.Rate <- boxplot.stats(completeData$Clickthrough.Rate)
 out.Clickthrough.Rate <- out.Clickthrough.Rate$out
+out.Clickthrough.Rate
 
-out.Bounce.Rate <- boxplot.stats(data$Bounce.Rate)
-out.Bounce.Rate <- out.Bounce.Rate$out
+out.Bounced <- boxplot.stats(completeData$Bounced)
+out.Bounced <- out.Bounced$out
+out.Bounced
 
-out.Unsubscribe.Rate <- boxplot.stats(data$Unsubscribe.Rate)
-out.Unsubscribe.Rate <- out.Unsubscribe.Rate$out
+out.Unsubscribed <- boxplot.stats(completeData$Unsubscribed)
+out.Unsubscribed <- out.Unsubscribed$out
+out.Unsubscribed
 ```
+
+#Normal QQ plots
+
+As you all can see, this data is decidedly NOT normal. We'll need to address this when we do our inferential stats.
 
 ```{r}
 #normal QQ plots
-library(car)
-qq.Audience.Size <- qqPlot(data$Audience.Size)
-qq.AUM <- qqPlot(data$AUM)
-qq.US.AUM <- qqPlot(data$US.AUM)
+qq.Audience.Size <- qqPlot(completeData$Audience.Size)
+qq.Opened <- qqPlot(completeData$Opened)
+qq.Clicked <- qqPlot(completeData$Clicked)
+qq.Bounced <- qqPlot(completeData$Bounced)
+qq.Unsubscribed <- qqPlot(completeData$Unsubscribed)
 ```
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
-#Example bar chart for a DV and categorical IV pair
-ggplot(data) +
-  geom_col(aes(x = Subscription, y = Open.Rate)) +
-  scale_y_continuous(labels = comma)
+# Boxplots for all continuous variables
+
+These are mainly for our eyes only, for the main purpose of displaying outliers.
+
+```{r}
+completeData %>% 
+  ggplot(aes(y = Opened)) + 
+  geom_boxplot(fill = 'steelblue', color = 'steelblue')
+
+completeData %>% 
+  ggplot(aes(y = Clicked)) + 
+  geom_boxplot(fill = 'tomato1', color = 'tomato1')
+
+completeData %>% 
+  ggplot(aes(y = Bounced)) + 
+  geom_boxplot(fill = 'darkorange', color = 'darkorange')
+
+completeData %>% 
+  ggplot(aes(y = Unsubscribed)) + 
+  geom_boxplot(fill = 'goldenrod', color = 'goldenrod')
 ```
 
-```{r message=FALSE, warning=FALSE, echo=FALSE}
-#Create boxplots for all continuous variables
-BP.Audience.Size <-  ggplot(data) +
-  geom_boxplot(aes(x = Audience.Size)) 
 
-BP.AUM <- ggplot(data) +
-  geom_boxplot(aes(x = AUM))
-
-BP.US.AUM <- ggplot(data) +
-  geom_boxplot(aes(x = US.AUM))
-
-BP.US.Intermediary.AUM <- ggplot(data) +
-  geom_boxplot(aes(x = US.Intermediary.AUM))
-
-BP.Open.Rate <- ggplot(data) +
-  geom_boxplot(aes(x = Open.Rate))
-
-BP.Clickthrough.Rate <- ggplot(data) +
-  geom_boxplot(aes(x = Clickthrough.Rate))
-
-BP.Bounce.Rate <- ggplot(data) +
-  geom_boxplot(aes(x = Bounce.Rate))
-
-BP.Unsubscribe.Rate <- ggplot(data) +
-  geom_boxplot(aes(x = Unsubscribe.Rate))
-```
 
 ```{r}
 #Desciptives: mean of DVs at each level of each categorical IV
-#From.Firm
-data%>%group_by(`From.Firm`)%>%
-  summarise(open_mean = mean(`Open.Rate`),
-            clickthrough_mean = mean(`Clickthrought.Rate`),
-            bounce_mean = mean(`Bounce.Rate`),
-            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+#From
+completeData%>%group_by(`From`)%>%
+  summarise(open_mean = mean(`Opened`),
+            clickthrough_mean = mean(`Clicked`),
+            bounce_mean = mean(`Bounced`),
+            unsubscribe_mean = mean(`Unsubscribed`),
             n())
 
-#email.Type
-data%>%group_by(`email.Type`)%>%
-  summarise(open_mean = mean(`Open.Rate`),
-            clickthrough_mean = mean(`Clickthrought.Rate`),
-            bounce_mean = mean(`Bounce.Rate`),
-            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+#Mail.Type
+completeData%>%group_by(`Mail.Type`)%>%
+  summarise(open_mean = mean(`Opened`),
+            clickthrough_mean = mean(`Clicked`),
+            bounce_mean = mean(`Bounced`),
+            unsubscribe_mean = mean(`Unsubscribed`),
             n())
 
 #Product.Name
-data%>%group_by(`Product.Name`)%>%
-  summarise(open_mean = mean(`Open.Rate`),
-            clickthrough_mean = mean(`Clickthrought.Rate`),
-            bounce_mean = mean(`Bounce.Rate`),
-            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+completeData%>%group_by(`Product.Name`)%>%
+  summarise(open_mean = mean(`Opened`),
+            clickthrough_mean = mean(`Clicked`),
+            bounce_mean = mean(`Bounced`),
+            unsubscribe_mean = mean(`Unsubscribed`),
             n())
 
 #Subscription
-data%>%group_by(`Subscription`)%>%
-  summarise(open_mean = mean(`Open.Rate`),
-            clickthrough_mean = mean(`Clickthrought.Rate`),
-            bounce_mean = mean(`Bounce.Rate`),
-            unsubscribe_mean = mean(`Unsubscribe.Rate`),
+completeData%>%group_by(`Subscription`)%>%
+  summarise(open_mean = mean(`Opened`),
+            clickthrough_mean = mean(`Clicked`),
+            bounce_mean = mean(`Bounced`),
+            unsubscribe_mean = mean(`Unsubscribed`),
             n())
 ```
 
+Graphs of audience size's correlations with each continuous DV (with regression line)
+
+Although the regression lines *do* show a negative relationship with audience size, this looks like it's almost entirely the result of outliers, so removing them will likely obliterate this relationship. 
+
 ```{r}
-#graphs audience size's correlations with each continuous DV (with regression line)
-ggplot(data, aes(x = Audience.Size, y = Open.Rate)) +
+ggplot(completeData, aes(x = Audience.Size, y = Opened)) +
   geom_jitter() +
   geom_smooth(method = 'lm', se = FALSE)
 
-ggplot(data, aes(x = Audience.Size, y = Clickthrought.Rate)) +
+ggplot(completeData, aes(x = Audience.Size, y = Clicked)) +
   geom_jitter() +
   geom_smooth(method = 'lm', se = FALSE)
 
-ggplot(data, aes(x = Audience.Size, y = Bounce.Rate)) +
+ggplot(completeData, aes(x = Audience.Size, y = Bounced)) +
   geom_jitter() +
   geom_smooth(method = 'lm', se = FALSE)
 
-ggplot(data, aes(x = Audience.Size, y = Unsubscribe.Rate)) +
+ggplot(completeData, aes(x = Audience.Size, y = Unsubscribed)) +
   geom_jitter() +
   geom_smooth(method = 'lm', se = FALSE)
 ```
+
+# Company-specific visualizations
+
+#Boxplots for DVs broken down by Manager.Name
+
+```{r}
+completeData %>% 
+  ggplot(aes(x = Manager.Name, y = Opened, fill = Manager.Name, color = Manager.Name)) + 
+  geom_boxplot()
+
+completeData %>% 
+  ggplot(aes(x = Manager.Name, y = Clicked, fill = Manager.Name, color = Manager.Name)) + 
+  geom_boxplot()
+
+completeData %>% 
+  ggplot(aes(x = Manager.Name, y = Bounced, fill = Manager.Name, color = Manager.Name)) + 
+  geom_boxplot()
+
+completeData %>% 
+  ggplot(aes(x = Manager.Name, y = Unsubscribed, fill = Manager.Name, color = Manager.Name)) + 
+  geom_boxplot()
+```
+
+#Density plot version of the boxplots from the above chunk
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = Manager.Name, fill = Manager.Name, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = Manager.Name, fill = Manager.Name, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = Manager.Name, fill = Manager.Name, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = Manager.Name, fill = Manager.Name, alpha = .1))
+```
+
+# DV density by day of week
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = date, fill = date, alpha = .1))
+```
+
+Day of week density for DVs for CTI
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = date, fill = date, alpha = .1))
+```
+
+Day of week density for DVs for Hartford
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = date, fill = date, alpha = .1))
+```
+
+Day of week density for DVs for PGIM
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = date, fill = date, alpha = .1))
+```
+
+Day of week density for DVs for William Blair
+
+As you can see, the data William Blair gave us only shows them sending emails on Wednesday. Either this is a mistake on their end or a weird trait of their marketing practices.
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = date, fill = date, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = date, fill = date, alpha = .1))
+```
+
+# Month density for DVs
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = month, fill = month, alpha = .1))
+```
+
+Monthly density for CTI
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'CTI') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = month, fill = month, alpha = .1))
+```
+
+Monthly density for Hartford
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'Hartford') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = month, fill = month, alpha = .1))
+```
+
+Monthly density for PGIM
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'PGIM') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = month, fill = month, alpha = .1))
+```
+
+Monthly density for William Blair
+
+```{r}
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = month, fill = month, alpha = .1))
+
+completeData %>% 
+  filter(Manager.Name == 'William Blair') %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = month, fill = month, alpha = .1))
+```
+
+# Comparing DV levels by categorical variables
+
+DVs by Mail.Type
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Mail.Type, y = Opened, color = Mail.Type, fill = Mail.Type)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Mail.Type, y = Clicked, color = Mail.Type, fill = Mail.Type)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Mail.Type, y = Bounced, color = Mail.Type, fill = Mail.Type)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Mail.Type, y = Unsubscribed, color = Mail.Type, fill = Mail.Type)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+# DVs by Blast.Message
+
+As you can see, there are only FALSE values for Blast.Message. Is this an issue with how the data was collected?
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Blast.Message, y = Opened), fill = 'steelblue')
+```
+
+#DVs by Distribution.Partner.Specific
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Distribution.Partner.Specific, y = Opened, fill = Distribution.Partner.Specific))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Distribution.Partner.Specific, y = Clicked, fill = Distribution.Partner.Specific))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Distribution.Partner.Specific, y = Bounced, fill = Distribution.Partner.Specific))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Distribution.Partner.Specific, y = Unsubscribed, fill = Distribution.Partner.Specific))
+```
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Preferred.Partner, y = Opened, fill = Preferred.Partner))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Preferred.Partner, y = Clicked, fill = Preferred.Partner))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Preferred.Partner, y = Bounced, fill = Preferred.Partner))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Preferred.Partner, y = Unsubscribed, fill = Preferred.Partner))
+```
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Producers.Only, y = Opened, fill = Producers.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Producers.Only, y = Clicked, fill = Producers.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Producers.Only, y = Bounced, fill = Producers.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Producers.Only, y = Unsubscribed, fill = Producers.Only))
+```
+
+```{r}
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Prospects.Only, y = Opened, fill = Prospects.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Prospects.Only, y = Clicked, fill = Prospects.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Prospects.Only, y = Bounced, fill = Prospects.Only))
+
+completeData %>% 
+  ggplot() +
+  geom_col(aes(x = Prospects.Only, y = Unsubscribed, fill = Prospects.Only))
+```
+
+
+
+
+
 
