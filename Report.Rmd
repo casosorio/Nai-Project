@@ -41,6 +41,7 @@ library(arsenal)
 library(qwraps2)
 options(qwraps2_markup= "markdown")
 library(table1)
+library(esquisse)
 
 # Remember to change the location to your computer or flashdrive. 
 data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
@@ -57,7 +58,7 @@ data6 <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/Asse
 
 ```
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 data2<-data2%>%select(Asset.Manager.Short.Name:unsubscribe_rate)
 
 data<-data%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
@@ -126,7 +127,7 @@ data4<-data4%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,
 ```
 
 
-```{r, include=FALSE}
+```{r, echo=FALSE, include=FALSE}
 # Data 1
 #Cleaning up
 Data_Time<-strsplit(data$Date,split = " ")
@@ -187,7 +188,7 @@ Df$Unsubscribed<-percent(Df$Unsubscribed)
 ```
 
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 # Data 2
 #Cleaning up
 Data_Time2<-strsplit(data2$Date,split = " ")
@@ -236,7 +237,7 @@ Df2$Unsubscribed<-percent(Df2$Unsubscribed)
 
 ```
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 # Data 3
 #Cleaning up
 data3$Date<-gsub("2:00","14:00",data3$Date)
@@ -276,7 +277,7 @@ Df3<-cbind(Df3,Date3.1,Time3, Month3,Week3)
 Df3<-Df3%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
 ```
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 # Data 4
 #Cleaning up
 Data_Time4<-strsplit(data4$Date,split = " ")
@@ -315,7 +316,7 @@ Df4<-cbind(Df4,Date4.1,Time4, Month4,Week4)
 Df4<-Df4%>%select(Manager.Name,date:week,Reference.Name:Unsubscribed)
 ```
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 Complete_data<-rbind(Df,Df2)
 Complete_data<-rbind(Complete_data,Df3)
 Complete_data<-rbind(Complete_data,Df4)
@@ -336,7 +337,7 @@ Complete_data2$Bounced<-round(as.numeric(Complete_data2$Bounced),2)
 Complete_data2$Unsubscribed<-round(as.numeric(Complete_data2$Unsubscribed),2)
 ```
 
-```{r}
+```{r, echo=FALSE,include=FALSE}
 data5<-data5%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
 
 data6<-data6%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,Product.Name=Product)
@@ -376,317 +377,127 @@ Complete_data4<-Complete_data4%>%select(ID:Headquarter.Country,Scope.of.AUM,Scop
 
 # Descriptives
 
-```{r}
 
-summary_statistics<-
-  list(
-    "Asset Manager AUM ($M)"=
-      list(
-        "mean (sd)" = ~qwraps2::mean_sd(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
-        "min" = ~min(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
-        "max" = ~max(Asset.Manager.AUM.Dollars.Million, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Asset.Manager.AUM.Dollars.Million))
-      ),
-    "Asset Manager Intermediary AUM ($M)"=
-    list(
-        "mean (sd)" = ~qwraps2::mean_sd(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
-        "min" = ~min(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
-        "max" = ~max(Asset.Manager.Inter.AUM.Dollars.Million, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Asset.Manager.Inter.AUM.Dollars.Million))
-      ),
-    "AUM ($m)"=
-      list(
-        "mean (sd)" = ~qwraps2::mean_sd(AUM.Dollars.Million, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(AUM.Dollars.Million, na_rm=TRUE),
-        "min" = ~min(AUM.Dollars.Million, na_rm=TRUE),
-        "max" = ~max(AUM.Dollars.Million, na_rm=TRUE),
-        "Missing" = ~sum(is.na(AUM.Dollars.Million))
-      ),
-    "Audience Size"=
-      list(
-        "mean (sd)" = ~qwraps2::mean_sd(Audience.Size, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Audience.Size, na_rm=TRUE),
-        "min" = ~min(Audience.Size, na_rm=TRUE),
-        "max" = ~max(Audience.Size, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Audience.Size))
-      ),
-    "Open Rate"=
-            list(
-        "mean (sd)" = ~qwraps2::mean_sd(Opened, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Opened, na_rm=TRUE),
-        "min" = ~min(Opened, na_rm=TRUE),
-        "max" = ~max(Opened, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Opened))
-      ),
-    "Click Rate"=
-          list(
-        "mean (sd)" = ~qwraps2::mean_sd(Clicked, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Clicked, na_rm=TRUE),
-        "min" = ~min(Clicked, na_rm=TRUE),
-        "max" = ~max(Clicked, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Clicked))
-      ),
-    "Bounced Rate"=
-      list(
-        "mean (sd)" = ~qwraps2::mean_sd(Bounced, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Bounced, na_rm=TRUE),
-        "min" = ~min(Bounced, na_rm=TRUE),
-        "max" = ~max(Bounced, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Bounced))
-      ),
-    "Unsubscribe Rate"=
-            list(
-        "mean (sd)" = ~qwraps2::mean_sd(Unsubscribed, na_rm=TRUE),
-        "median (Q1, Q3)"= ~qwraps2::median_iqr(Unsubscribed, na_rm=TRUE),
-        "min" = ~min(Unsubscribed, na_rm=TRUE),
-        "max" = ~max(Unsubscribed, na_rm=TRUE),
-        "Missing" = ~sum(is.na(Unsubscribed))))
+```{r, echo=FALSE}
+#Descriptive Table
+table1::label(Complete_data4$Asset.Manager.AUM.Dollars.Million) <- "Asset Manager AUM ($M)"
+table1::label(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million) <- "Asset Manager Intermediary AUM ($M)"
+table1::label(Complete_data4$AUM.Dollars.Million) <- "AUM ($M)"
+table1::label(Complete_data4$Mail.Type) <- "Mail Type"
+table1::label(Complete_data4$Audience.Size) <- "Audience Size"
+table1::label(Complete_data4$Opened) <- "Opened"
+table1::label(Complete_data4$Clicked) <- "Clicked"
+table1::label(Complete_data4$Bounced) <- "Bounced"
+table1::label(Complete_data4$Unsubscribed) <- "Unsubscribed"
 
-
-   
-```
-
-```{r}
-#Another table
-table_one<-tableby(ID~.,data = Complete_data4)
-summary(table_one)
+table1::table1(~Asset.Manager.AUM.Dollars.Million+Asset.Manager.Inter.AUM.Dollars.Million+AUM.Dollars.Million+Mail.Type+  Audience.Size+Opened+Clicked+Bounced+Unsubscribed | Manager.Name.x, data=Complete_data4)
 
 ```
 
-
-
-
-
-```{r}
-# Basic Desciptives
-psych::describe(Complete_data4)
-```
-
+# Frequency 
 
 ```{r,echo=FALSE}
-#Frequency
-freq(Complete_data2$Manager.Name)
-freq(Complete_data2$From)
-freq(Complete_data2$Mail.Type)
-freq(Complete_data2$Product.Name)
-freq(Complete_data2$Subscription)
-freq(Complete_data2$Blast.Message)
-freq(Complete_data2$Distribution.Partner.Specific)
-freq(Complete_data2$Preferred.Partner)
-freq(Complete_data2$Producers.Only)
-freq(Complete_data2$Prospects.Only)
+# Frequency Table
+lst2 <- lapply(Complete_data4, function(x) {
+  out <- as.data.frame.table(table(x))
+  out$Pct <- 100*out$Freq/sum(out$Freq)
+  out
+})
+
+knitr::kable(do.call(rbind, c(Map(cbind, nm=names(lst2), lst2), list(make.row.names = FALSE))))
+
 ```
 
-```{r}
-#Outliers
-Out.Audience.Size<-boxplot.stats(Complete_data2$Audience.Size)$out
-Out.Open.Rate<-boxplot.stats(Complete_data2$Opened)$out
-Out.Clickthrough.Rate<-boxplot.stats(Complete_data2$Clicked)$out
-Out.Bounce.Rate<-boxplot.stats(Complete_data2$Bounced)$out
-Out.Unsubscibe.Rate<-boxplot.stats(Complete_data2$Unsubscribed)$out
+# boxplot and outlies
 
-#Boxplot
-ggplot(Complete_data2) +
+```{r, echo=FALSE}
+# Testing for Normality
+## Box plots
+
+ggplot(Complete_data4) +
   aes(x="",y=Audience.Size)+
   geom_boxplot(fill="#0c4c8a")+
   theme_minimal()
   
-ggplot(Complete_data2) +
+ggplot(Complete_data4) +
   aes(x = "", y = Opened) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Complete_data2) +
+ggplot(Complete_data4) +
   aes(x = "", y = Clicked) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Complete_data2) +
+ggplot(Complete_data4) +
   aes(x = "", y =Bounced) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-ggplot(Complete_data2) +
+ggplot(Complete_data4) +
   aes(x = "", y = Unsubscribed) +
   geom_boxplot(fill = "#0c4c8a") +
   theme_minimal()
 
-# Histograms
+#Outliers
+Out.Audience.Size<-boxplot.stats(Complete_data4$Audience.Size)$out
+Out.Open.Rate<-boxplot.stats(Complete_data4$Opened)$out
+Out.Clickthrough.Rate<-boxplot.stats(Complete_data4$Clicked)$out
+Out.Bounce.Rate<-boxplot.stats(Complete_data4$Bounced)$out
+Out.Unsubscibe.Rate<-boxplot.stats(Complete_data4$Unsubscribed)$out
 
-
-ggplot(Complete_data2) +
-  aes(x = Audience.Size) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
-
-ggplot(Complete_data2) +
-  aes(x = Opened) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
-
-ggplot(Complete_data2) +
-  aes(x = Clicked) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
-
-ggplot(Complete_data2) +
-  aes(x = Bounced) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
-
-ggplot(Complete_data2) +
-  aes(x = Unsubscribed) +
-  geom_histogram(bins = 30L, fill = "#0c4c8a") +
-  theme_minimal()
 ```
 
-```{r}
-# QQplot
-#Audience Size needs to be fixed
-qq.Audience.Size <- qqPlot(Complete_data2$Audience.Size)
-qq.Open.Rate<-qqPlot(Complete_data2$Opened)
-qq.Clickthrough.Rate<-qqPlot(Complete_data2$Clicked)
-qq.Bounce.Rate<-qqPlot(Complete_data2$Bounced)
-qq.Unsubscribe.Rate<-qqPlot(Complete_data2$Unsubscribed)
+#QQplot and Density
+```{r, echo=FALSE}
+#Qqplot
 
-# Density Plot
-ggdensity(Complete_data2$Audience.Size,
-          main= "Density plot of Open Rate",
+qq.Audience.Size <- qqPlot(Complete_data4$Audience.Size)
+qq.Open.Rate<-qqPlot(Complete_data4$Opened)
+qq.Clickthrough.Rate<-qqPlot(Complete_data4$Clicked)
+qq.Bounce.Rate<-qqPlot(Complete_data4$Bounced)
+qq.Unsubscribe.Rate<-qqPlot(Complete_data4$Unsubscribed)
+
+ggdensity(Complete_data4$Audience.Size,
+          main= "Density plot of Audience Size",
           xlab = "Audience size")
 
-ggdensity(Complete_data2$Opened,
+ggdensity(Complete_data4$Opened,
           main= "Density plot of Open Rate",
           xlab= "Open Rate")
 
-ggdensity(Complete_data2$Clicked,
+ggdensity(Complete_data4$Clicked,
           main= "Density plot of Clickthrough Rate",
           xlab= "Clickthrough Rate")
 
-ggdensity(Complete_data2$Bounced,
+ggdensity(Complete_data4$Bounced,
           main= "Density plot of Bounce Rate",
           xlab= "Bounce Rate")
 
-ggdensity(Complete_data2$Unsubscribed,
+ggdensity(Complete_data4$Unsubscribed,
           main= "Density plot of Unsubscribe Rate",
           xlab= "Unsubscribe Rate")
 
-##Shapiro-Test Wilks
-shapiro.test(Complete_data2$Audience.Size)
-shapiro.test(Complete_data2$Opened)
-shapiro.test(Complete_data2$Clicked)
-shapiro.test(Complete_data2$Bounced)
-shapiro.test(Complete_data2$Unsubscribed)
-
-#Skewness
-skewness(Complete_data2$Audience.Size,na.rm = TRUE)
-skewness(Complete_data2$Opened,na.rm = TRUE)
-skewness(Complete_data2$Clicked,na.rm = TRUE)
-skewness(Complete_data2$Bounced,na.rm = TRUE)
-skewness(Complete_data2$Unsubscribed,na.rm = TRUE)
-
-#kurtosis
-kurtosis(Complete_data2$Audience.Size,na.rm = TRUE)
-kurtosis(Complete_data2$Opened,na.rm = TRUE)
-kurtosis(Complete_data2$Clicked,na.rm = TRUE)
-kurtosis(Complete_data2$Bounced,na.rm = TRUE)
-kurtosis(Complete_data2$Unsubscribed,na.rm = TRUE)
 
 ```
 
 
-```{r}
-#Quantile
-quantile(Complete_data2$Audience.Size, na.rm=TRUE)
-quantile(Complete_data2$Opened,na.rm = TRUE)
-quantile(Complete_data2$Clicked,na.rm = TRUE)
-quantile(Complete_data2$Bounced,na.rm=TRUE)
-quantile(Complete_data2$Unsubscribed,na.rm=TRUE)
 
-```
+# Heatmaps
 
 
-```{r}
-#Contigency Tables: mean of DVs at each level of each categorical IV
-#From.Firm
-Complete_data2%>%group_by(From)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
 
-#email Type
-Complete_data2%>%group_by(Mail.Type)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
+```{r,echo=FALSE}
+# heatmaps
 
-#Product Name
-Complete_data2%>%group_by(Product.Name)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
+Complete_data4$time_of_Day<-gsub(":","",Complete_data4$time)
+Complete_data4$time_of_Day<-as.numeric(Complete_data4$time_of_Day)
 
-#Subscription
-Complete_data2%>%group_by(Subscription)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-# Blast Message
-Complete_data2%>%group_by(Blast.Message)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-# Distribution Partner Specific
-Complete_data2%>%group_by(Distribution.Partner.Specific)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-# Preferred Partner
-Complete_data2%>%group_by(Preferred.Partner)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-# Producers Only 
-Complete_data2%>%group_by(Producers.Only)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-# Prospects 
-Complete_data2%>%group_by(Prospects.Only)%>%
-  dplyr::summarise(open_mean = mean(Opened),
-            clickthrough_mean = mean(Clicked),
-            bounce_mean = mean(Bounced),
-            unsubscribe_mean = mean(Unsubscribed),
-            n())
-
-```
+Complete_data4$time_of_Day<-ifelse(Complete_data4$time_of_Day>700 & Complete_data4$time_of_Day<=1100,"Morning",ifelse(Complete_data4$time_of_Day>1101 & Complete_data4$time_of_Day<=1500,"Mid-Day",ifelse(Complete_data4$time_of_Day>1501 & Complete_data4$time_of_Day<=1900,"Afternoon",ifelse(Complete_data4$time_of_Day>1901,"After Business Hours",ifelse(Complete_data4$time_of_Day<700,"After Business Hours","")))))
 
 
-```{r}
-# Data visualization
-ggplot(Complete_data2, aes(time, date, fill = Opened)) +
+
+ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
   geom_tile(colour = "blue") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -695,8 +506,9 @@ ggplot(Complete_data2, aes(time, date, fill = Opened)) +
        title = "Time-Series Calendar Heatmap",
        subtitle="Email Open Rate",
        fill="Close")
-#Plot 2
-ggplot(Complete_data2, aes(time, date, fill = Clicked)) +
+
+
+ggplot(Complete_data4, aes(time, date, fill = Clicked)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -707,7 +519,7 @@ ggplot(Complete_data2, aes(time, date, fill = Clicked)) +
        fill="Close")
 
 #Plot 3
-ggplot(Complete_data2, aes(time, date, fill = Bounced)) +
+ggplot(Complete_data4, aes(time, date, fill = Bounced)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -718,7 +530,7 @@ ggplot(Complete_data2, aes(time, date, fill = Bounced)) +
        fill="Close")
 
 #Plot 4
-ggplot(Complete_data2, aes(time, date, fill = Unsubscribed)) +
+ggplot(Complete_data4, aes(time, date, fill = Unsubscribed)) +
   geom_tile(colour = "white") +
   facet_grid(week~month) +
   scale_fill_gradient(low="red", high="green") +
@@ -728,226 +540,16 @@ ggplot(Complete_data2, aes(time, date, fill = Unsubscribed)) +
        subtitle="Email Unsubscribe Rate",
        fill="Close")
 
-```
-
-```{r}
-# Regression and Machine Learning
-validation_index <- createDataPartition(Complete_data_SD_2$Opened, p=0.80, list=FALSE)
-
-validation <- Complete_data_SD_2[-validation_index,]
-
-dataset <- Complete_data_SD_2[validation_index,]
-
-control <- trainControl(method = "cv", 
-                              number = 5,verboseIter = TRUE)
-metric="RMSE"
-
-################ Open Rate
-set.seed(7)
-model.knn <- train(Opened~Manager.Name + From + Mail.Type + Subscription + Blast.Message + 
-                     Distribution.Partner.Specific + Preferred.Partner
-                   + Producers.Only + Prospects.Only, data=dataset, method="knn", metric=metric, trControl=control)
-
-set.seed(9)
-model.lm <- train(Open.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
-                  trControl = control)
-summary(model.lm)
-
-predictions <- predict(model.lm, validation)
-prediction<-as.data.frame(cbind(predictions,validation$Open.Rate))
-
-################ Clickthrought
-set.seed(7)
-model.knn <- train(Clickthrought.Rate~ Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
-
-set.seed(9)
-model.lm <- train(Clickthrought.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
-                  trControl = train.control)
-summary(model.lm)
-
-predictions <- predict(model.lm, validation)
-confusionMatrix(predictions, validation$Clickthrought.Rate)
-
-################ Bounce Rate
-set.seed(7)
-model.knn <- train(Bounce.Rate~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
-
-set.seed(9)
-model.lm <- train(Bounce.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
-                  trControl = train.control)
-summary(model.lm)
-
-predictions <- predict(model.lm, validation)
-confusionMatrix(predictions, validation$Bounce.Rate)
-
-################ Unsubscribe
-set.seed(7)
-model.knn <- train(Unsubscribe.Rate~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                   + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                   + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                   + US.AUM + US.Intermediary.AUM, data=dataset, method="knn", metric=metric, trControl=control)
-
-set.seed(9)
-model.lm <- train(Unsubscribe.Rate ~Reference.Name + From.Firm + email.Type + Product.Name + Subscription
-                  + Audience.Size + Blast.Message + Distribution.Partner.Specific + Preferred.Partner
-                  + Producers.Only + Prospect.Only + AUM + Morningstar.Rating + Focus.Status 
-                  + US.AUM + US.Intermediary.AUM, data = dataset, method = "lm", metric=metric,
-                  trControl = train.control)
-summary(model.lm)
-
-predictions <- predict(model.lm, validation)
-confusionMatrix(predictions, validation$Unsubscribe.Rate)
-```
-
-```{r}
-regression_model<-lm(Opened~date+month+Reference.Name+From+Mail.Type+Product.Name+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only,data=Complete_data)
-
-summary(regression_model)
-
-## Changing to factors
-Complete_data_factors<-Complete_data
-
-mean(Complete_data[,17],na.rm = TRUE)
-mean(Complete_data[,18],na.rm = TRUE)
-mean(Complete_data[,19],na.rm = TRUE)
-mean(Complete_data[,20],na.rm = TRUE)
-
-Complete_data_factors$Opened[Complete_data$Opened < 17] <- 0
-Complete_data_factors$Opened[Complete_data$Opened > 17] <- 1 
-
-Complete_data_factors$Clicked[Complete_data$Clicked < 6.5] <- 0
-Complete_data_factors$Clicked[Complete_data$Clicked > 6.5] <- 1
-
-Complete_data_factors$Bounced[Complete_data$Bounced < 1.3] <- 0
-Complete_data_factors$Bounced[Complete_data$Bounced > 1.3] <- 1
-
-Complete_data_factors$Unsubscribed[Complete_data < 0.01] <- 0
-Complete_data_factors$Unsubscribed[Complete_data > 0.01] <- 1
-
-Complete_data_factors$Opened<-as.factor(Complete_data_factors$Opened)
-
-
-Complete_data_factors<-Complete_data%>% mutate(From=recode_factor(From,
-                                               "TRUE"='1',
-                                               "FALSE"='0'))
-
-
-
-
-Complete_data_factors$Subscription<-as.factor(Complete_data_factors$Subscription)
-Complete_data_factors$Distribution.Partner.Specific<-as.factor(Complete_data_factors$Distribution.Partner.Specific)
-Complete_data_factors$Preferred.Partner<-as.factor(Complete_data_factors$Preferred.Partner)
-Complete_data_factors$Producers.Only<-as.factor(Complete_data_factors$Producers.Only)
-Complete_data_factors$Prospects.Only<-as.factor(Complete_data_factors$Prospects.Only)
-
-
-
-dt = sort(sample(nrow(Complete_data_factors), nrow(Complete_data_factors)*.7))
-train<-Complete_data_factors[dt,]
-test<-Complete_data_factors[-dt,]
-
-k_fold<-vfold_cv(train)
-
-model_rec<-recipe(Opened~From+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, train) %>%
-  step_range(all_numeric())
-
-m_metrics<-metric_set(accuracy, sens, spec, roc_auc, mn_log_loss)
-
-m_control<-control_grid(save_pred =TRUE)
-
-model2<-nearest_neighbor(neighbors =tune("K")) %>%
-  set_mode("classification") %>%
-  set_engine("kknn")
-
-set.seed(123)
-knn_tune<-tune_grid(model2,
-                    model_rec,resamples = k_fold,
-                    control=m_control,
-                    metrics = m_metrics)
-
-
 
 ```
 
 
-```{r}
-Complete_data_SD<-Complete_data2
-
-Complete_data_SD$From<-gsub("TRUE","1",Complete_data_SD$From)
-Complete_data_SD$From<-gsub("FALSE","0",Complete_data_SD$From)
-
-Complete_data_SD$Subscription<-gsub("TRUE","1",Complete_data_SD$Subscription)
-Complete_data_SD$Subscription<-gsub("FALSE","0",Complete_data_SD$Subscription)
-
-Complete_data_SD$Blast.Message<-gsub("TRUE","1",Complete_data_SD$Blast.Message)
-Complete_data_SD$Blast.Message<-gsub("FALSE","0",Complete_data_SD$Blast.Message)
-
-Complete_data_SD$Distribution.Partner.Specific<-gsub("TRUE","1",Complete_data_SD$Distribution.Partner.Specific)
-Complete_data_SD$Distribution.Partner.Specific<-gsub("FALSE","0",Complete_data_SD$Distribution.Partner.Specific)
-
-Complete_data_SD$Preferred.Partner<-gsub("TRUE","1",Complete_data_SD$Preferred.Partner)
-Complete_data_SD$Preferred.Partner<-gsub("FALSE","0",Complete_data_SD$Preferred.Partner)
-
-Complete_data_SD$Producers.Only<-gsub("TRUE","1",Complete_data_SD$Producers.Only)
-Complete_data_SD$Producers.Only<-gsub("FALSE","0",Complete_data_SD$Producers.Only)
-
-Complete_data_SD$Prospects.Only<-gsub("TRUE","1",Complete_data_SD$Prospects.Only)
-Complete_data_SD$Prospects.Only<-gsub("FALSE","0",Complete_data_SD$Prospects.Only)
-
-Complete_data_SD$Mail.Type<-as.factor(Complete_data_SD$Mail.Type)
-Complete_data_SD$From<-as.factor(Complete_data_SD$From)
-Complete_data_SD$Subscription<-as.factor(Complete_data_SD$Subscription)
-Complete_data_SD$Distribution.Partner.Specific<-as.factor(Complete_data_SD$Distribution.Partner.Specific)
-Complete_data_SD$Preferred.Partner<-as.factor(Complete_data_SD$Preferred.Partner)
-Complete_data_SD$Producers.Only<-as.factor(Complete_data_SD$Producers.Only)
-Complete_data_SD$Prospects.Only<-as.factor(Complete_data_SD$Prospects.Only)
-
-Complete_data_SD_2<-Complete_data_SD%>%
-  select(Manager.Name,From:Mail.Type,Subscription:Unsubscribed)
-
-Complete_data_SD_2$Opened<-scale(Complete_data_SD_2$Opened,center = TRUE,scale = TRUE)
-Complete_data_SD_2$Opened[Complete_data_SD_2$Opened < 0] <- 0
-Complete_data_SD_2$Opened[Complete_data_SD_2$Opened > 0] <- 1 
-Complete_data_SD_2$Opened<-as.factor(Complete_data_SD_2$Opened)
 
 
-df_split<-initial_split(Complete_data_SD_2,prop=.8,strata = Opened)
-df.train<-training(df_split)
-df.test<-testing(df_split)
 
-k_fold<-vfold_cv(df.train)
 
-model_rec<-recipe(Opened~From+Subscription+Blast.Message+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, df.train) %>%
-  step_range(all_numeric())
 
-m_metrics<-metric_set(accuracy, sens, spec, roc_auc, mn_log_loss)
-m_control<-control_grid(save_pred =TRUE)
 
-model2<-nearest_neighbor(neighbors =tune("K"))%>%
-  set_mode("classification")%>%
-  set_engine("kknn")
 
-set.seed(123)
-knn_tune<-tune_grid(model2,  
-                    model_rec,
-                    resamples = k_fold,
-                    control=m_control,
-                    metrics = m_metrics)
 
-```
 

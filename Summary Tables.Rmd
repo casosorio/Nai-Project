@@ -7,7 +7,7 @@ output: html_document
 
 
 
-```{r}
+```{r, include=FALSE}
 #Descriptive Table
 table1::label(Complete_data4$Asset.Manager.AUM.Dollars.Million) <- "Asset Manager AUM ($M)"
 table1::label(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million) <- "Asset Manager Intermediary AUM ($M)"
@@ -24,7 +24,7 @@ table1::table1(~Asset.Manager.AUM.Dollars.Million+Asset.Manager.Inter.AUM.Dollar
 ```
 
 
-```{r}
+```{r,include=FALSE}
 # Frequency Table
 lst2 <- lapply(Complete_data4, function(x) {
   out <- as.data.frame.table(table(x))
@@ -37,7 +37,7 @@ Freq1<-do.call(rbind, c(Map(cbind, nm=names(lst2), lst2), list(make.row.names = 
 ```
 
 
-```{r}
+```{r, include=FALSE}
 # Testing for Normality
 ## Box plots
 
@@ -75,7 +75,7 @@ Out.Unsubscibe.Rate<-boxplot.stats(Complete_data4$Unsubscribed)$out
 
 ```
 
-```{r}
+```{r, include=FALSE}
 #Qqplot
 
 qq.Audience.Size <- qqPlot(Complete_data4$Audience.Size)
@@ -113,7 +113,7 @@ ggdensity(Complete_data4$Unsubscribed,
 
 
 
-```{r}
+```{r,include=FALSE}
 # heatmaps
 
 Complete_data4$time_of_Day<-gsub(":","",Complete_data4$time)
@@ -132,6 +132,41 @@ ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
        title = "Time-Series Calendar Heatmap",
        subtitle="Email Open Rate",
        fill="Close")
+
+
+ggplot(Complete_data4, aes(time, date, fill = Clicked)) +
+  geom_tile(colour = "white") +
+  facet_grid(week~month) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(x="Time of Day",
+       y="",
+       title = "Time-Series Calendar Heatmap",
+       subtitle="Email Clickthrough Rate",
+       fill="Close")
+
+#Plot 3
+ggplot(Complete_data4, aes(time, date, fill = Bounced)) +
+  geom_tile(colour = "white") +
+  facet_grid(week~month) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(x="Time of Day",
+       y="",
+       title = "Time-Series Calendar Heatmap",
+       subtitle="Email Bounce Rate",
+       fill="Close")
+
+#Plot 4
+ggplot(Complete_data4, aes(time, date, fill = Unsubscribed)) +
+  geom_tile(colour = "white") +
+  facet_grid(week~month) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(x="Time of Day",
+       y="",
+       title = "Time-Series Calendar Heatmap",
+       subtitle="Email Unsubscribe Rate",
+       fill="Close")
+
+
 ```
 
 
@@ -139,7 +174,7 @@ ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
 
 
 
-```{r}
+```{r,include=FALSE}
 # Prediction
 Regression_Data<-Complete_data4%>%select(Manager.Name.x,Headquarter.City,Scope.of.AUM:Asset.Manager.Inter.AUM.Dollars.Million,Reference.Name,From,Mail.Type,Subscription:Prospects.Only,date,month,week,Opened:Unsubscribed)
 
@@ -221,6 +256,65 @@ knn_tune<-tune_grid(model2,
 
 ```
 
+
+
+
+
+```{r}
+Headcount<-Complete_data4%>%select(Manager.Name.x,Mail.Type,Product.Name,Audience.Size,Opened:Unsubscribed)
+
+
+Open_Rate<-Complete_data4%>%select(Manager.Name.x,Opened)
+Click_Rate<-Complete_data4%>%select(Manager.Name.x,Clicked)
+Bounce_Rate<-Complete_data4%>%select(Manager.Name.x,Bounced)
+Unsubscribe_Rate<-Complete_data4%>%select(Manager.Name.x,Unsubscribed)
+
+Open_Rate$Subscribers<-"Open"
+Click_Rate$Subscribers<-"Clicked"
+Bounce_Rate$Subscribers<-"Bounced"
+Unsubscribe_Rate$Subscribers<-"Unsubscribed"
+
+Open_Rate<-Open_Rate%>%dplyr::rename(Percent=Opened)
+Click_Rate<-Click_Rate%>%dplyr::rename(Percent=Clicked)
+Bounce_Rate<-Bounce_Rate%>%dplyr::rename(Percent=Bounced)
+Unsubscribe_Rate<-Unsubscribe_Rate%>%dplyr::rename(Percent=Unsubscribed)
+
+Rates<-rbind(Open_Rate,Click_Rate)
+Rates<-rbind(Rates,Bounce_Rate)
+Rates<-rbind(Rates,Unsubscribe_Rate)
+
+Rates$Percent<-Rates$Percent*formattable::percent(.01)
+
+ggplot(Rates) +
+ aes(x = Manager.Name.x, fill = Subscribers, weight = Percent) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Percent (%)", title = "Rates by Company") +
+ coord_flip() +
+ theme_minimal()
+
+ggplot(Rates) +
+ aes(x = Manager.Name.x, fill = Subscribers, weight = Percent) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Percent", title = "Rates by Company") +
+ coord_flip() +
+ theme_minimal()
+
+ggplot(data6) +
+ aes(x = Morningstar.Rating, y = Product.Name, fill = Manager.Name) +
+ geom_tile(size = 1L) +
+ scale_fill_hue() +
+ theme_minimal()
+
+esquisser(Rates)
+
+
+           
+                            
+
+
+```
 
 
 
