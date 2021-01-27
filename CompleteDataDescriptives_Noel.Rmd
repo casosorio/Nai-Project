@@ -1,0 +1,97 @@
+---
+title: "CompleteDataDescriptives_Noel"
+output: pdf_document
+---
+
+```{r}
+
+library(readxl)
+Complete_data <- read_excel("~/2nd Year IO/Naissance Project/Complete_data.xlsx")
+View(Complete_data)
+
+Complete_data[Complete_data=="NA"] <- ""
+
+
+```
+
+```{r}
+library('ggplot2')
+# Basic violin plot
+p <- ggplot(Complete_data, aes(x=Mail.Type, y=Opened)) + 
+  geom_violin()
+
+# Set trim argument to FALSE
+ggplot(Complete_data, aes(x=Mail.Type, y=Opened)) + 
+  geom_violin(trim=FALSE,fill='Blue', color="Black")
+
+
+p + stat_summary(fun= mean, geom= "point", size = 1, color = "red")
+
+```
+```{r}
+library('ggpubr')
+gghistogram(Complete_data, x = "Opened", 
+             add = "mean")
+
+
+
+#Subscription based on Mail Type
+data <- Complete_data %>% 
+#Step 2
+mutate(Subscription = factor(Subscription, labels = c("TRUE", "FALSE")),
+    Mail.Type = factor(Mail.Type))
+ggplot(Complete_data, aes(x = Mail.Type, fill =Subscription)) +
+    geom_bar() +
+    theme_classic()
+
+```
+
+
+```{r}
+
+library(ggpubr)
+ggbarplot(Complete_data, x = "Mail.Type", y = "Opened",
+          palette = c("brown", "blue", "gold", "green"))
+```
+
+```{r}
+Complete_data$z.score_Opened <- scale(Complete_data$Opened)
+Complete_data$z.score_Clicked <- scale(Complete_data$Clicked)
+Complete_data$z.score_Bounced <- scale(Complete_data$Bounced)
+Complete_data$z.score_Unsubscribed <- scale(Complete_data$Unsubscribed)
+
+ggplot(Complete_data, aes (y=z.score_Opened)) +
+  geom_bar() +
+  theme_classic()
+
+ggbarplot(Complete_data, x = "Mail.Type", y = "z.score_Opened")
+
+```
+
+```{r}
+
+ggstripchart(Complete_data, x = "Mail.Type", y = "z.score_Opened",
+          palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+          add = "mean_sd")
+
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+
+# Build dataset with different distributions
+data <- Complete_data
+  type = c("Opened","Clicked","Bounced","Unsubscribed"),
+  value = c( rnorm(1000), rnorm(1000, mean=4)))
+
+# Represent it
+p <- data %>%
+  ggplot( aes(x=value, fill=type)) +
+    geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
+    scale_fill_manual(values=c("#69b3a2", "#404080")) +
+    theme_ipsum() +
+    labs(fill="")
+```
