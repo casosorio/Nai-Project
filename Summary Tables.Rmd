@@ -1,0 +1,76 @@
+---
+title: "Summary Table"
+author: "Eagle IO"
+date: "1/26/2021"
+output: html_document
+---
+
+
+
+```{r}
+#Descriptive Table
+table1::label(Complete_data4$Asset.Manager.AUM.Dollars.Million) <- "Asset Manager AUM ($M)"
+table1::label(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million) <- "Asset Manager Intermediary AUM ($M)"
+table1::label(Complete_data4$AUM.Dollars.Million) <- "AUM ($M)"
+table1::label(Complete_data4$Mail.Type) <- "Mail Type"
+table1::label(Complete_data4$Audience.Size) <- "Audience Size"
+table1::label(Complete_data4$Opened) <- "Opened"
+table1::label(Complete_data4$Clicked) <- "Clicked"
+table1::label(Complete_data4$Bounced) <- "Bounced"
+table1::label(Complete_data4$Unsubscribed) <- "Unsubscribed"
+
+table1::table1(~Asset.Manager.AUM.Dollars.Million+Asset.Manager.Inter.AUM.Dollars.Million+AUM.Dollars.Million+Mail.Type+  Audience.Size+Opened+Clicked+Bounced+Unsubscribed | Manager.Name.x, data=Complete_data4)
+
+```
+
+
+```{r}
+# Frequency Table
+lst2 <- lapply(Complete_data4, function(x) {
+  out <- as.data.frame.table(table(x))
+  out$Pct <- 100*out$Freq/sum(out$Freq)
+  out
+})
+
+Freq1<-do.call(rbind, c(Map(cbind, nm=names(lst2), lst2), list(make.row.names = FALSE)))
+
+```
+
+
+
+
+
+
+
+
+```{r}
+# heatmaps
+
+Complete_data4$time_of_Day<-gsub(":","",Complete_data4$time)
+Complete_data4$time_of_Day<-as.numeric(Complete_data4$time_of_Day)
+
+Complete_data4$time_of_Day<-ifelse(Complete_data4$time_of_Day>700 & Complete_data4$time_of_Day<=1100,"Morning",ifelse(Complete_data4$time_of_Day>1101 & Complete_data4$time_of_Day<=1500,"Mid-Day",ifelse(Complete_data4$time_of_Day>1501 & Complete_data4$time_of_Day<=1900,"Afternoon",ifelse(Complete_data4$time_of_Day>1901,"After Business Hours",ifelse(Complete_data4$time_of_Day<700,"After Business Hours","")))))
+
+
+
+ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
+  geom_tile(colour = "blue") +
+  facet_grid(week~month) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(x="Time of Day",
+       y="",
+       title = "Time-Series Calendar Heatmap",
+       subtitle="Email Open Rate",
+       fill="Close")
+```
+
+
+
+
+
+
+
+
+
+
+

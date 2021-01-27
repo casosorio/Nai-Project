@@ -40,6 +40,7 @@ library(caTools)
 library(arsenal)
 library(qwraps2)
 options(qwraps2_markup= "markdown")
+library(table1)
 
 # Remember to change the location to your computer or flashdrive. 
 data <-read.csv(file="E:/Montclair State University/EagleIO/Naissance/Data/ColumbiaThreadNeedle.csv",na.strings="")
@@ -154,6 +155,7 @@ Month<-Month%>%dplyr::rename(month=`months(as.Date(Date$date, "%Y-%m-%d"))`)
 Date$date<-as.Date(Date$date)
 Week<-as.data.frame(stringi::stri_datetime_fields(Date$date)$WeekOfMonth)
 Week<-Week%>%dplyr::rename(week="stringi::stri_datetime_fields(Date$date)$WeekOfMonth")
+Week$week<-gsub("6","1",Week$week)
   
 # Combining
 Df<-data%>%select(Manager.Name,Reference.Name:Unsubscribed)
@@ -237,6 +239,8 @@ Df2$Unsubscribed<-percent(Df2$Unsubscribed)
 ```{r}
 # Data 3
 #Cleaning up
+data3$Date<-gsub("2:00","14:00",data3$Date)
+
 Data_Time3<-strsplit(data3$Date,split = " ")
 result3 <-  do.call(rbind, Data_Time3)
 Date3<-as.data.frame(result3[,1])
@@ -301,7 +305,8 @@ Month4<-Month4%>%dplyr::rename(month=`months(as.Date(Date4$date, "%Y-%m-%d"))`)
 Date4$date<-as.Date(Date4$date)
 Week4<-as.data.frame(stringi::stri_datetime_fields(Date4$date)$WeekOfMonth)
 Week4<-Week4%>%dplyr::rename(week="stringi::stri_datetime_fields(Date4$date)$WeekOfMonth")
-  
+Week4$week<-gsub("6","1",Week4$week)
+
 # Combining
 Df4<-data4%>%select(Manager.Name,Reference.Name:Unsubscribed)
 
@@ -334,17 +339,20 @@ Complete_data2$Unsubscribed<-round(as.numeric(Complete_data2$Unsubscribed),2)
 ```{r}
 data5<-data5%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
 
-data6<-data6%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name)
+data6<-data6%>%dplyr::rename(Manager.Name=Asset.Manager.Short.Name,Product.Name=Product)
 
 Complete_data3<-left_join(Complete_data2,data5,by='Manager.Name')
 
 data6<-data6%>%select(Manager.Name:As.of.Date)
 
-Complete_data4<-left_join(Complete_data3,data6, by='Manager.Name')
+
+
+Complete_data4<-left_join(Complete_data3,data6, by='Product.Name')
 
 Complete_data4<-Complete_data4%>%dplyr::rename(As.of.Date.=As.of.Date.x)
 
-Complete_data4<-Complete_data4%>%select(ID,Manager.Name,Asset.Manager.Legal.Name:Focus.Status,date:Unsubscribed)
+
+Complete_data4<-Complete_data4%>%select(ID,Manager.Name.x,Asset.Manager.Legal.Name:Focus.Status,date:Unsubscribed)
 
 Complete_data4<-Complete_data4%>%dplyr::rename(Asset.Manager.AUM.Dollars.Million=Asset.Manager.AUM...M.,
                                                Asset.Manager.Inter.AUM.Dollars.Million=Asset.Manager.Intermediary.AUM...M.,
@@ -360,6 +368,8 @@ Complete_data4$Asset.Manager.AUM.Dollars.Million<-as.numeric(Complete_data4$Asse
 Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million<-as.numeric(Complete_data4$Asset.Manager.Inter.AUM.Dollars.Million)
 Complete_data4$AUM.Dollars.Million<-as.numeric(Complete_data4$AUM.Dollars.Million)
 
+Complete_data4<-Complete_data4%>%select(ID:Headquarter.Country,Scope.of.AUM,Scope.of.Intermediary.AUM,Asset.Manager.AUM.Dollars.Million,Asset.Manager.Inter.AUM.Dollars.Million,As.of.Date.,Reference.Name,Manager.Name.y,From,Mail.Type,Product.Name,AUM.Dollars.Million:Focus.Status,Subscription:Prospects.Only,date:week,Opened:Unsubscribed)
+
 
 ```
 
@@ -367,7 +377,6 @@ Complete_data4$AUM.Dollars.Million<-as.numeric(Complete_data4$AUM.Dollars.Millio
 # Descriptives
 
 ```{r}
-Numbers<-Complete_data4%>%select(Asset.Manager.AUM.Dollars.Million,Asset.Manager.Inter.AUM.Dollars.Million,AUM.Dollars.Million,Audience.Size,Opened,Clicked,Bounced,Unsubscribed)
 
 summary_statistics<-
   list(
@@ -434,7 +443,8 @@ summary_statistics<-
         "min" = ~min(Unsubscribed, na_rm=TRUE),
         "max" = ~max(Unsubscribed, na_rm=TRUE),
         "Missing" = ~sum(is.na(Unsubscribed))))
-summary_table(Complete_data4,summary_statistics)
+
+
    
 ```
 
