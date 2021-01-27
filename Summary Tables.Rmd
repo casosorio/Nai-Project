@@ -37,6 +37,76 @@ Freq1<-do.call(rbind, c(Map(cbind, nm=names(lst2), lst2), list(make.row.names = 
 ```
 
 
+```{r}
+# Testing for Normality
+## Box plots
+
+ggplot(Complete_data4) +
+  aes(x="",y=Audience.Size)+
+  geom_boxplot(fill="#0c4c8a")+
+  theme_minimal()
+  
+ggplot(Complete_data4) +
+  aes(x = "", y = Opened) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Complete_data4) +
+  aes(x = "", y = Clicked) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Complete_data4) +
+  aes(x = "", y =Bounced) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+ggplot(Complete_data4) +
+  aes(x = "", y = Unsubscribed) +
+  geom_boxplot(fill = "#0c4c8a") +
+  theme_minimal()
+
+#Outliers
+Out.Audience.Size<-boxplot.stats(Complete_data4$Audience.Size)$out
+Out.Open.Rate<-boxplot.stats(Complete_data4$Opened)$out
+Out.Clickthrough.Rate<-boxplot.stats(Complete_data4$Clicked)$out
+Out.Bounce.Rate<-boxplot.stats(Complete_data4$Bounced)$out
+Out.Unsubscibe.Rate<-boxplot.stats(Complete_data4$Unsubscribed)$out
+
+```
+
+```{r}
+#Qqplot
+
+qq.Audience.Size <- qqPlot(Complete_data4$Audience.Size)
+qq.Open.Rate<-qqPlot(Complete_data4$Opened)
+qq.Clickthrough.Rate<-qqPlot(Complete_data4$Clicked)
+qq.Bounce.Rate<-qqPlot(Complete_data4$Bounced)
+qq.Unsubscribe.Rate<-qqPlot(Complete_data4$Unsubscribed)
+
+ggdensity(Complete_data4$Audience.Size,
+          main= "Density plot of Audience Size",
+          xlab = "Audience size")
+
+ggdensity(Complete_data4$Opened,
+          main= "Density plot of Open Rate",
+          xlab= "Open Rate")
+
+ggdensity(Complete_data4$Clicked,
+          main= "Density plot of Clickthrough Rate",
+          xlab= "Clickthrough Rate")
+
+ggdensity(Complete_data4$Bounced,
+          main= "Density plot of Bounce Rate",
+          xlab= "Bounce Rate")
+
+ggdensity(Complete_data4$Unsubscribed,
+          main= "Density plot of Unsubscribe Rate",
+          xlab= "Unsubscribe Rate")
+
+
+```
+
 
 
 
@@ -69,6 +139,87 @@ ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
 
 
 
+```{r}
+# Prediction
+Regression_Data<-Complete_data4%>%select(Manager.Name.x,Headquarter.City,Scope.of.AUM:Asset.Manager.Inter.AUM.Dollars.Million,Reference.Name,From,Mail.Type,Subscription:Prospects.Only,date,month,week,Opened:Unsubscribed)
+
+# turning into factors
+Regression_Data$From<-gsub("TRUE","1",Regression_Data$From)
+Regression_Data$From<-gsub("FALSE","0",Regression_Data$From)
+
+Regression_Data$Subscription<-gsub("TRUE","1",Regression_Data$Subscription)
+Regression_Data$Subscription<-gsub("FALSE","0",Regression_Data$Subscription)
+
+Regression_Data$Blast.Message<-gsub("TRUE","1",Regression_Data$Blast.Message)
+Regression_Data$Blast.Message<-gsub("FALSE","0",Regression_Data$Blast.Message)
+
+Regression_Data$Distribution.Partner.Specific<-gsub("TRUE","1",Regression_Data$Distribution.Partner.Specific)
+Regression_Data$Distribution.Partner.Specific<-gsub("FALSE","0",Regression_Data$Distribution.Partner.Specific)
+
+Regression_Data$Preferred.Partner<-gsub("TRUE","1",Regression_Data$Preferred.Partner)
+Regression_Data$Preferred.Partner<-gsub("FALSE","0",Regression_Data$Preferred.Partner)
+
+Regression_Data$Producers.Only<-gsub("TRUE","1",Regression_Data$Producers.Only)
+Regression_Data$Producers.Only<-gsub("FALSE","0",Regression_Data$Producers.Only)
+
+Regression_Data$Prospects.Only<-gsub("TRUE","1",Regression_Data$Prospects.Only)
+Regression_Data$Prospects.Only<-gsub("FALSE","0",Regression_Data$Prospects.Only)
+
+
+
+Regression_Data$Manager.Name.x<-as.factor(Regression_Data$Manager.Name.x)
+Regression_Data$Headquarter.City<-as.factor(Regression_Data$Headquarter.City)
+Regression_Data$Scope.of.AUM<-as.factor(Regression_Data$Scope.of.AUM)
+Regression_Data$Scope.of.Intermediary.AUM<-as.factor(Regression_Data$Scope.of.Intermediary.AUM)
+Regression_Data$Reference.Name<-as.factor(Regression_Data$Reference.Name)
+Regression_Data$Mail.Type<-as.factor(Regression_Data$Mail.Type)
+Regression_Data$From<-as.factor(Regression_Data$From)
+Regression_Data$Subscription<-as.factor(Regression_Data$Subscription)
+Regression_Data$Blast.Message<-as.factor(Regression_Data$Blast.Message)
+Regression_Data$Distribution.Partner.Specific<-as.factor(Regression_Data$Distribution.Partner.Specific)
+Regression_Data$Preferred.Partner<-as.factor(Regression_Data$Preferred.Partner)
+Regression_Data$Producers.Only<-as.factor(Regression_Data$Producers.Only)
+Regression_Data$Prospects.Only<-as.factor(Regression_Data$Prospects.Only)
+Regression_Data$date<-as.factor(Regression_Data$date)
+Regression_Data$month<-as.factor(Regression_Data$month)
+Regression_Data$week<-as.factor(Regression_Data$week)
+
+
+# Z Score Opened Ratings
+Regression_Data$Opened<-scale(Regression_Data$Opened,center = TRUE,scale = TRUE)
+Regression_Data$Opened[Regression_Data$Opened < 0] <- 0
+Regression_Data$Opened[Regression_Data$Opened > 0] <- 1 
+Regression_Data$Opened<-as.factor(Regression_Data$Opened)
+
+#KNN
+df_split<-initial_split(Regression_Data,prop=.8,strata = Opened)
+df.train<-training(df_split)
+df.test<-testing(df_split)
+
+k_fold<-vfold_cv(df.train)
+
+model_rec<-recipe(Opened~Manager.Name.x+Headquarter.City+Scope.of.Intermediary.AUM+Scope.of.AUM+From+Mail.Type+Subscription+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, df.train) %>%
+  step_range(all_numeric())
+
+
+m_metrics<-metric_set(accuracy, sens, spec, roc_auc, mn_log_loss)
+m_control<-control_grid(save_pred =TRUE)
+
+model2<-nearest_neighbor(neighbors =tune("K"))%>%
+  set_mode("classification")%>%
+  set_engine("kknn")
+
+set.seed(123)
+knn_tune<-tune_grid(model2,  
+                    model_rec,
+                    resamples = k_fold,
+                    control=m_control,
+                    metrics = m_metrics)
+
+
+
+
+```
 
 
 
