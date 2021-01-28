@@ -371,6 +371,11 @@ Complete_data4$AUM.Dollars.Million<-as.numeric(Complete_data4$AUM.Dollars.Millio
 
 Complete_data4<-Complete_data4%>%select(ID:Headquarter.Country,Scope.of.AUM,Scope.of.Intermediary.AUM,Asset.Manager.AUM.Dollars.Million,Asset.Manager.Inter.AUM.Dollars.Million,As.of.Date.,Reference.Name,Manager.Name.y,From,Mail.Type,Product.Name,AUM.Dollars.Million:Focus.Status,Subscription:Prospects.Only,date:week,Opened:Unsubscribed)
 
+Complete_data4$time_of_Day<-gsub(":","",Complete_data4$time)
+Complete_data4$time_of_Day<-as.numeric(Complete_data4$time_of_Day)
+
+Complete_data4$time_of_Day<-ifelse(Complete_data4$time_of_Day>700 & Complete_data4$time_of_Day<=1100,"Morning",ifelse(Complete_data4$time_of_Day>1101 & Complete_data4$time_of_Day<=1500,"Mid-Day",ifelse(Complete_data4$time_of_Day>1501 & Complete_data4$time_of_Day<=1900,"Afternoon",ifelse(Complete_data4$time_of_Day>1901,"After Business Hours",ifelse(Complete_data4$time_of_Day<700,"After Business Hours","")))))
+
 
 ```
 

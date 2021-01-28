@@ -169,8 +169,80 @@ Rates %>%
  facet_wrap(vars(Subscribers))
 
 
-esquisser(Rates)
+
+
+## Heatmap 
+Rates %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ 
+    filter(!(time_of_Day %in% "") & !is.na(time_of_Day)) %>%
+ filter(!is.na(Percent)) %>%
+ ggplot() +
+ aes(x = time_of_Day, y = date, fill = Percent) +
+ geom_tile(size = 1L) +
+ scale_fill_distiller(palette = "Blues") +
+ theme_minimal() +
+ facet_wrap(vars(Subscribers))
+
+
+#Alluvial
+library(ggplot2)
+library(ggalluvial)
+
+ggplot(Rates,
+       aes(axis1 = From,
+           axis2 = Subscribers,
+           y = Percent)) +
+  geom_alluvium(aes(fill = Manager.Name.x)) +
+  geom_stratum() +
+  geom_text(stat = "stratum", 
+            label.strata = TRUE) +
+  scale_x_discrete(limits = c("From", "Subscribers"),
+                   expand = c(.1, .1)) +
+  labs(title = "Titanic data",
+       subtitle = "stratified by from, subscribers, and Manager Name",
+       y = "Frequency") +
+  theme_minimal()
+
+```
+
+
+
+
+```{r}
+Standardized_Data<-Complete_data4
+Standardized_Data$Morningstar.Rating<-gsub("n/a",NA,Standardized_Data$Morningstar.Rating)
+
+Standardized_Data$Audience.Size<-scale(Standardized_Data$Audience.Size,center=TRUE,scale=TRUE)
+Standardized_Data$Opened<-scale(Standardized_Data$Opened,center = TRUE,scale = TRUE)
+Standardized_Data$Clicked<-scale(Standardized_Data$Clicked,center=TRUE,scale=TRUE)
+Standardized_Data$Bounced<-scale(Standardized_Data$Bounced,center = TRUE,scale = TRUE)
+Standardized_Data$Unsubscribed<-scale(Standardized_Data$Unsubscribed,center=TRUE,scale=TRUE)
+
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

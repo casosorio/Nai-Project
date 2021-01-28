@@ -116,12 +116,6 @@ ggdensity(Complete_data4$Unsubscribed,
 ```{r,include=FALSE}
 # heatmaps
 
-Complete_data4$time_of_Day<-gsub(":","",Complete_data4$time)
-Complete_data4$time_of_Day<-as.numeric(Complete_data4$time_of_Day)
-
-Complete_data4$time_of_Day<-ifelse(Complete_data4$time_of_Day>700 & Complete_data4$time_of_Day<=1100,"Morning",ifelse(Complete_data4$time_of_Day>1101 & Complete_data4$time_of_Day<=1500,"Mid-Day",ifelse(Complete_data4$time_of_Day>1501 & Complete_data4$time_of_Day<=1900,"Afternoon",ifelse(Complete_data4$time_of_Day>1901,"After Business Hours",ifelse(Complete_data4$time_of_Day<700,"After Business Hours","")))))
-
-
 
 ggplot(Complete_data4, aes(time_of_Day, date, fill = Opened)) +
   geom_tile(colour = "blue") +
