@@ -7,10 +7,6 @@ output: pdf_document
 
 library(readxl)
 Complete_data <- read_excel("~/2nd Year IO/Naissance Project/Complete_data.xlsx")
-View(Complete_data)
-
-Complete_data[Complete_data=="NA"] <- ""
-
 
 ```
 
@@ -28,6 +24,7 @@ ggplot(Complete_data, aes(x=Mail.Type, y=Opened)) +
 p + stat_summary(fun= mean, geom= "point", size = 1, color = "red")
 
 ```
+
 ```{r}
 library('ggpubr')
 gghistogram(Complete_data, x = "Opened", 
@@ -46,7 +43,6 @@ ggplot(Complete_data, aes(x = Mail.Type, fill =Subscription)) +
 
 ```
 
-
 ```{r}
 
 library(ggpubr)
@@ -56,6 +52,8 @@ ggbarplot(Complete_data, x = "Mail.Type", y = "Opened",
 
 ```{r}
 Complete_data$z.score_Opened <- scale(Complete_data$Opened)
+
+
 Complete_data$z.score_Clicked <- scale(Complete_data$Clicked)
 Complete_data$z.score_Bounced <- scale(Complete_data$Bounced)
 Complete_data$z.score_Unsubscribed <- scale(Complete_data$Unsubscribed)
@@ -76,22 +74,156 @@ ggstripchart(Complete_data, x = "Mail.Type", y = "z.score_Opened",
 
 ```
 
-
 ```{r}
 library(ggplot2)
 library(dplyr)
 library(hrbrthemes)
 
 # Build dataset with different distributions
-data <- Complete_data
-  type = c("Opened","Clicked","Bounced","Unsubscribed"),
-  value = c( rnorm(1000), rnorm(1000, mean=4)))
+data <- data.frame(
+    type = c(rep("Opened"),rep("Clicked"),rep("Bounced"),rep("Unsubscribed")))
+    value = c( rnorm(1000), rnorm(1000, mean=4) )
 
-# Represent it
-p <- data %>%
-  ggplot( aes(x=value, fill=type)) +
+  p  <- data %>%
+  
+    ggplot( aes(x=value, fill=type)) +
     geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +
     scale_fill_manual(values=c("#69b3a2", "#404080")) +
     theme_ipsum() +
     labs(fill="")
+
+```
+
+head(M.D)
+
+```{r}
+#Outliers
+##Maybe Ask Dr. Dan how we can measure the mahalanobis distance for finding the outliers. 
+library(ggplot2)
+library(dplyr)
+
+M.D <- mahalanobis(Complete_data[,c(17,18,19,20)], colMeans(Complete_data[,c(17,18,19,20)]), cov(Complete_data[,c(17,18,19,20)])na.rm = TRUE)
+
+
+Complete_data$M.D <- round(M.D, 3)
+
+Complete_data$Outlier_maha <- FALSE
+Complete_data$Outlier_maha[Complete_data$M.D > 12] <- TRUE
+
+require(graphics)
+ma <- cbind(1:6, 1:3)
+(S <-  var(ma))
+mahalanobis(c(0, 0), 1:2, S)
+
+x <- matrix(rnorm(100*3), ncol = 3)
+stopifnot(mahalanobis(x, 0, diag(ncol(x))) == rowSums(x*x))
+        
+
+Sx <- cov(x)
+D2 <- mahalanobis(x, colMeans(x), Sx)
+plot(density(D2, bw = 0.5),
+     main="Squared Mahalanobis distances, n=100, p=3") ; rug(D2)
+qqplot(qchisq(ppoints(100), df = 3), D2,
+       main = expression("Q-Q plot of Mahalanobis" * ~D^2 *
+                         " vs. quantiles of" * ~ chi[3]^2))
+abline(0, 1, col = 'gray')
+
+
+##Density Plots
+
+###Day
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = "green", fill = Day, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = "green", fill = Day, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = "green", fill = Day, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = "green", fill = Day, alpha = .1))
+
+###Week
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = "green", fill = Week, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = "green", fill = Week, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = "green", fill = Week, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = "green", fill = Week, alpha = .1))
+
+###Mail Type
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = "green", fill = Mail.Type, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = "green", fill = Mail.Type, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = "green", fill = Mail.Type, alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = "green", fill = Mail.Type, alpha = .1))
+###Asset Manager Name
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Opened, color = "green", fill = Asset.Manager.Legal., alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Clicked, color = "green", fill = Asset.Manager.Legal., alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Bounced, color = "green", fill = Asset.Manager.Legal., alpha = .1))
+
+Complete_data %>% 
+  ggplot() +
+  geom_density(aes(x = Unsubscribed, color = "green", fill = Asset.Manager.Legal., alpha = .1))
+
+##Scatter plot of audience size on the Open rate
+
+Complete_data$Audience.Size <- as.numeric(as.character(Complete_data$Audience.Size))
+ggscatter(Complete_data, x = "Audience.Size", y = "Opened",
+          color = "Audience.Size", palette = "Opened",
+          mean.point = FALSE, star.plot = FALSE,
+          ggtheme = theme_minimal())
+
+
+#Producers Only with open rate
+
+Complete_data %>% 
+  ggplot() +
+  geom_col(aes(x = Producers.Only, y = Opened), fill = c('gold')
+           
+#Prospects Only with open rate
+
+Complete_data %>% 
+  ggplot() +
+  geom_col(aes(x = Prospects.Only, y = Opened), fill = c('red')
+
+
+
+
 ```
