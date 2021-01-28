@@ -200,6 +200,10 @@ Regression_Data$Producers.Only<-gsub("FALSE","0",Regression_Data$Producers.Only)
 Regression_Data$Prospects.Only<-gsub("TRUE","1",Regression_Data$Prospects.Only)
 Regression_Data$Prospects.Only<-gsub("FALSE","0",Regression_Data$Prospects.Only)
 
+Regression_Data$Mail.Type<-gsub("/Hybrid","",Regression_Data$Mail.Type)
+Regression_Data$Mail.Type<-gsub(" / Hybrid","",Regression_Data$Mail.Type)
+Regression_Data$Mail.Type<-gsub("Unknown","Other",Regression_Data$Mail.Type)
+
 
 
 Regression_Data$Manager.Name.x<-as.factor(Regression_Data$Manager.Name.x)
@@ -233,7 +237,7 @@ df.test<-testing(df_split)
 
 k_fold<-vfold_cv(df.train)
 
-model_rec<-recipe(Opened~Manager.Name.x+Headquarter.City+Scope.of.Intermediary.AUM+Scope.of.AUM+From+Mail.Type+Subscription+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, df.train) %>%
+model_rec<-recipe(Opened~Manager.Name.x+Headquarter.City+Scope.of.Intermediary.AUM+Scope.of.AUM+From+Mail.Type+Subscription+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only,date,month, df.train) %>%
   step_range(all_numeric())
 
 
@@ -251,12 +255,50 @@ knn_tune<-tune_grid(model2,
                     control=m_control,
                     metrics = m_metrics)
 
-
-
+knn_tune %>%collect_metrics() %>%
+  ggplot(aes(x=K, y=mean))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~.metric, scales ="free_y")
 
 ```
 
 
+```{r}
+# Random Forest
+library(caTools)
+set.seed(123)
+
+split<-sample.split(Regression_Data$Opened, SplitRatio =0.7)
+train<-subset(Regression_Data, split==TRUE)
+test<-subset(Regression_Data, split==FALSE)
+
+
+dtree1<-rpart(Opened~Manager.Name.x+Headquarter.City+Scope.of.Intermediary.AUM+Scope.of.AUM+From+Mail.Type+Subscription+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, data = train, 
+              method="class",
+              minsplit=2, 
+              minbucket=1,
+              cp=0.005)
+
+summary(dtree1)
+rpart.plot(dtree1)
+
+test.pred<-predict(dtree1, test, type ="class")
+confusionMatrix(test.pred, test$Opened)
+
+
+set.seed(234)
+system.time(
+  rf1<-randomForest(Opened~Manager.Name.x+Headquarter.City+Scope.of.Intermediary.AUM+Scope.of.AUM+From+Mail.Type+Subscription+Distribution.Partner.Specific+Preferred.Partner+Producers.Only+Prospects.Only, data=train, mtry=2, ntree=501)
+            )
+
+test.predtr<-predict(rf1, train, type ="class")
+confusionMatrix(test.predtr, train$Opened)
+
+test.predts<-predict(rf1, test, type ="class")
+confusionMatrix(test.predts, test$Opened)
+
+```
 
 
 

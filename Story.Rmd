@@ -1,0 +1,176 @@
+---
+title: "The Story"
+author: "Eagle IO"
+date: "1/27/2021"
+output: html_document
+---
+
+```{r}
+# Open Rate
+
+### Company
+Company_Open_Rate<-Complete_data4%>%select(Manager.Name.x:Scope.of.Intermediary.AUM,Opened)
+Company_Open_Rate$Opened<-Company_Open_Rate$Opened*formattable::percent(.01)
+
+
+# Table 1 of Company
+ggplot(Company_Open_Rate) +
+ aes(x = Manager.Name.x, fill = Headquarter.City, weight = Opened) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "Company Name", y = "Raw Average Percent (%)", title = "Open Rate By Company and Location", fill = "Headquarter City") +
+ theme_minimal() +
+ facet_wrap(vars(Scope.of.Intermediary.AUM))
+
+
+
+##Months, Date, Week, Time
+Date_Open_Rate<-Complete_data4%>%select(Manager.Name.x,date:week,time_of_Day,Opened)
+Date_Open_Rate$Opened<-Date_Open_Rate$Opened*formattable::percent(.01)
+
+# Table 1 of Days
+Date_Open_Rate %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ ggplot() +
+ aes(x = date, fill = week, weight = Opened) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Date", y = "Percent (%)", title = "Open Rate By Days, Week, and Company", fill = "Week") +
+ theme_light() +
+ facet_wrap(vars(Manager.Name.x))
+
+#Table 2 of Days
+Date_Open_Rate %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ ggplot() +
+ aes(x = date, fill = week, weight = Opened) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ theme_minimal()
+
+#Table 3 of Months
+Date_Open_Rate %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ ggplot() +
+ aes(x = month, fill = date, weight = Opened) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Month", y = "Raw Average Percent (%)", title = "Open by Month", fill = "Date") +
+ theme_light() +
+ facet_wrap(vars(week))
+
+# Table 4 of Time
+Date_Open_Rate %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ 
+    filter(!(time_of_Day %in% "") & !is.na(time_of_Day)) %>%
+ ggplot() +
+ aes(x = time_of_Day, fill = date, weight = Opened) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Time", y = "Raw Average Percent (&)", title = "Open Rate by Time,Day, & Week", fill = "Date") +
+ theme_light() +
+ facet_wrap(vars(week))
+
+```
+
+
+```{r}
+# Bigger Story
+Open_Rate<-Complete_data4%>%select(Manager.Name.x,Mail.Type,Audience.Size,From,Subscription,Distribution.Partner.Specific:Prospects.Only,date:week,time_of_Day,Opened)
+Click_Rate<-Complete_data4%>%select(Manager.Name.x,Mail.Type,Audience.Size,From,Subscription,Distribution.Partner.Specific:Prospects.Only,date:week,time_of_Day,Clicked)
+Bounce_Rate<-Complete_data4%>%select(Manager.Name.x,Mail.Type,Audience.Size,From,Subscription,Distribution.Partner.Specific:Prospects.Only,date:week,time_of_Day,Bounced)
+Unsubscribe_Rate<-Complete_data4%>%select(Manager.Name.x,Mail.Type,Audience.Size,From,Subscription,Distribution.Partner.Specific:Prospects.Only,date:week,time_of_Day,Unsubscribed)
+
+Open_Rate$Subscribers<-"Open"
+Click_Rate$Subscribers<-"Clicked"
+Bounce_Rate$Subscribers<-"Bounced"
+Unsubscribe_Rate$Subscribers<-"Unsubscribed"
+
+Open_Rate<-Open_Rate%>%dplyr::rename(Percent=Opened)
+Click_Rate<-Click_Rate%>%dplyr::rename(Percent=Clicked)
+Bounce_Rate<-Bounce_Rate%>%dplyr::rename(Percent=Bounced)
+Unsubscribe_Rate<-Unsubscribe_Rate%>%dplyr::rename(Percent=Unsubscribed)
+
+Rates<-rbind(Open_Rate,Click_Rate)
+Rates<-rbind(Rates,Bounce_Rate)
+Rates<-rbind(Rates,Unsubscribe_Rate)
+
+Rates$Percent<-Rates$Percent*formattable::percent(.01)
+
+Rates$Mail.Type<-gsub("/Hybrid","",Rates$Mail.Type)
+Rates$Mail.Type<-gsub(" / Hybrid","",Rates$Mail.Type)
+Rates$Mail.Type<-gsub("Unknown","Other",Rates$Mail.Type)
+
+
+## By Company
+ggplot(Rates) +
+ aes(x = Manager.Name.x, fill = Subscribers, weight = Percent) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Percent (%)", title = "Rates by Company") +
+ coord_flip() +
+ theme_minimal()
+
+ggplot(Rates) +
+ aes(x = Manager.Name.x, fill = Subscribers, weight = Percent) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Percent", title = "Rates by Company") +
+ coord_flip() +
+ theme_minimal()
+
+## Name and Date
+Rates %>%
+ filter(!is.na(date)) %>%
+ filter(!is.na(month)) %>%
+ filter(!is.na(week)) %>%
+ 
+    filter(!(time_of_Day %in% "") & !is.na(time_of_Day)) %>%
+ filter(!is.na(Percent)) %>%
+ ggplot() +
+ aes(x = Manager.Name.x, fill = date, weight = Percent) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Raw Average Percent (%)", title = "Rate by Days & Company", fill = "Date") +
+ theme_light() +
+ facet_wrap(vars(Subscribers))
+
+
+## Product and Company
+Rates %>%
+ filter(!(time_of_Day %in% "") | is.na(time_of_Day)) %>%
+ ggplot() +
+ aes(x = Manager.Name.x, fill = Mail.Type, weight = Percent) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "Company", y = "Raw Average Percent (%)", fill = "Mail Type") +
+ theme_minimal() +
+ facet_wrap(vars(Subscribers))
+
+
+## From
+Rates %>%
+ filter(!(time_of_Day %in% "") | is.na(time_of_Day)) %>%
+ ggplot() +
+ aes(x = From, fill = Manager.Name.x, weight = Percent) +
+ geom_bar(position = "dodge") +
+ scale_fill_hue() +
+ labs(x = "From", y = "Raw Average Percent (%)", title = "From Company", fill = "Manger Name") +
+ theme_minimal() +
+ facet_wrap(vars(Subscribers))
+
+
+esquisser(Rates)
+
+
+```
+
